@@ -1,0 +1,414 @@
+{% extends 'base.html' %}
+
+{% block title %}百分比学习 - 练习{% endblock %}
+
+{% block content %}
+<h2>练习</h2>
+<p class="intro">通过以下练习题测试你对分数和百分比的理解。</p>
+
+<div class="practice-container">
+    <div id="quiz-container">
+        <div class="loading">加载中...</div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const quizContainer = document.getElementById('quiz-container');
+    
+    // 定义问题
+    const questions = [
+        {
+            type: 'fraction-identification',
+            question: '下面的图形中，哪一个代表 1/4？',
+            options: [
+                { fraction: { numerator: 1, denominator: 2 } },
+                { fraction: { numerator: 1, denominator: 3 } },
+                { fraction: { numerator: 1, denominator: 4 } },
+                { fraction: { numerator: 1, denominator: 5 } }
+            ],
+            correctAnswer: 2
+        },
+        {
+            type: 'fraction-identification',
+            question: '下面的图形中，哪一个代表 3/4？',
+            options: [
+                { fraction: { numerator: 2, denominator: 3 } },
+                { fraction: { numerator: 3, denominator: 4 } },
+                { fraction: { numerator: 3, denominator: 5 } },
+                { fraction: { numerator: 4, denominator: 5 } }
+            ],
+            correctAnswer: 1
+        },
+        {
+            type: 'fraction-to-percent',
+            question: '1/5 等于多少百分比？',
+            options: [
+                { text: '10%' },
+                { text: '15%' },
+                { text: '20%' },
+                { text: '25%' }
+            ],
+            correctAnswer: 2
+        },
+        {
+            type: 'fraction-to-percent',
+            question: '3/4 等于多少百分比？',
+            options: [
+                { text: '65%' },
+                { text: '70%' },
+                { text: '75%' },
+                { text: '80%' }
+            ],
+            correctAnswer: 2
+        },
+        {
+            type: 'fraction-comparison',
+            question: '下列哪个分数最大？',
+            options: [
+                { text: '1/3' },
+                { text: '2/5' },
+                { text: '3/8' },
+                { text: '1/2' }
+            ],
+            correctAnswer: 3
+        },
+        {
+            type: 'percent-to-fraction',
+            question: '50% 等于哪个分数？',
+            options: [
+                { text: '1/3' },
+                { text: '1/2' },
+                { text: '3/4' },
+                { text: '2/5' }
+            ],
+            correctAnswer: 1
+        },
+        {
+            type: 'percent-to-fraction',
+            question: '25% 等于哪个分数？',
+            options: [
+                { text: '1/5' },
+                { text: '1/4' },
+                { text: '1/3' },
+                { text: '2/5' }
+            ],
+            correctAnswer: 1
+        },
+        {
+            type: 'real-world',
+            question: '小明的考试得了80分（满分100分），他的分数相当于多少百分比？',
+            options: [
+                { text: '75%' },
+                { text: '80%' },
+                { text: '85%' },
+                { text: '90%' }
+            ],
+            correctAnswer: 1
+        },
+        {
+            type: 'real-world',
+            question: '一个水杯已经喝掉了一半的水，还剩下多少百分比的水？',
+            options: [
+                { text: '25%' },
+                { text: '40%' },
+                { text: '50%' },
+                { text: '75%' }
+            ],
+            correctAnswer: 2
+        },
+        {
+            type: 'real-world',
+            question: '一件衣服打7折，这意味着价格是原价的多少百分比？',
+            options: [
+                { text: '60%' },
+                { text: '65%' },
+                { text: '70%' },
+                { text: '75%' }
+            ],
+            correctAnswer: 2
+        }
+    ];
+    
+    let currentQuestion = 0;
+    let score = 0;
+    
+    // 渲染问题
+    function renderQuestion() {
+        const question = questions[currentQuestion];
+        let html = '<div class="question-container">';
+        html += `<h3>问题 ${currentQuestion + 1} / ${questions.length}</h3>`;
+        html += `<p class="question">${question.question}</p>`;
+        
+        html += '<div class="options">';
+        question.options.forEach((option, index) => {
+            if (question.type === 'fraction-identification') {                const { numerator, denominator } = option.fraction;
+                html += `
+                    <div class="option" data-index="${index}">
+                        <div class="mini-circle">
+                            ${renderMiniCircle(numerator, denominator)}
+                        </div>
+                        <!-- 不显示分数标签，让用户自己判断 -->
+                    </div>
+                `;
+            } else {
+                html += `<div class="option" data-index="${index}">${option.text}</div>`;
+            }
+        });
+        html += '</div>';
+        
+        html += `
+            <div class="feedback" style="display: none;"></div>
+            <button class="check">检查答案</button>
+            <div class="score">当前得分: ${score} / ${currentQuestion}</div>
+        `;
+        
+        html += '</div>';
+        
+        quizContainer.innerHTML = html;
+        
+        // 添加事件监听器
+        document.querySelectorAll('.option').forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+            });
+        });
+        
+        document.querySelector('.check').addEventListener('click', checkAnswer);
+    }
+      // 渲染小圆形
+    function renderMiniCircle(numerator, denominator) {
+        let html = '<svg viewBox="0 0 100 100" class="mini-circle-svg">';
+        
+        // 绘制圆形背景
+        html += '<circle cx="50" cy="50" r="48" fill="#f8f9fa" stroke="#dee2e6" stroke-width="1"></circle>';
+        
+        // 绘制分割线
+        for (let i = 0; i < denominator; i++) {
+            const angle = i * 360 / denominator;
+            const radian = angle * Math.PI / 180;
+            
+            html += `<line 
+                x1="50" 
+                y1="50" 
+                x2="${50 + 48 * Math.cos(radian)}" 
+                y2="${50 + 48 * Math.sin(radian)}" 
+                stroke="#dee2e6" 
+                stroke-width="1">
+            </line>`;
+        }
+        
+        // 绘制高亮部分
+        for (let i = 0; i < numerator; i++) {
+            const startAngle = i * 360 / denominator;
+            const endAngle = (i + 1) * 360 / denominator;
+            
+            const startRadian = startAngle * Math.PI / 180;
+            const endRadian = endAngle * Math.PI / 180;
+            
+            const startX = 50 + 48 * Math.cos(startRadian);
+            const startY = 50 + 48 * Math.sin(startRadian);
+            const endX = 50 + 48 * Math.cos(endRadian);
+            const endY = 50 + 48 * Math.sin(endRadian);
+            
+            // 判断是否是大弧
+            const largeArcFlag = (endAngle - startAngle) > 180 ? 1 : 0;
+            
+            html += `<path 
+                d="M 50 50 L ${startX} ${startY} A 48 48 0 ${largeArcFlag} 1 ${endX} ${endY} Z" 
+                fill="#4285f4" 
+                fill-opacity="0.8">
+            </path>`;
+        }
+        
+        html += '</svg>';
+        return html;
+    }
+    
+    // 检查答案
+    function checkAnswer() {
+        const selectedOption = document.querySelector('.option.selected');
+        const feedbackEl = document.querySelector('.feedback');
+        
+        if (!selectedOption) {
+            feedbackEl.textContent = '请选择一个答案';
+            feedbackEl.className = 'feedback warning';
+            feedbackEl.style.display = 'block';
+            return;
+        }
+        
+        const selectedIndex = parseInt(selectedOption.dataset.index);
+        const correctIndex = questions[currentQuestion].correctAnswer;
+        
+        if (selectedIndex === correctIndex) {
+            feedbackEl.textContent = '答对了！';
+            feedbackEl.className = 'feedback correct';
+            score++;
+        } else {            feedbackEl.textContent = '答错了。';
+            feedbackEl.className = 'feedback incorrect';
+        }
+          feedbackEl.style.display = 'block';
+        document.querySelector('.score').textContent = `当前得分: ${score} / ${currentQuestion + 1}`;
+        
+        // 高亮正确答案（仅适用于非分数识别类型的问题）
+        if (questions[currentQuestion].type !== 'fraction-identification') {
+            const correctOption = document.querySelector(`.option[data-index="${correctIndex}"]`);
+            correctOption.classList.add('correct-answer');
+        }
+        
+        // 修改按钮
+        const checkButton = document.querySelector('.check');
+        checkButton.textContent = currentQuestion < questions.length - 1 ? '下一题' : '查看结果';
+        checkButton.removeEventListener('click', checkAnswer);
+        checkButton.addEventListener('click', nextQuestion);
+    }
+    
+    // 下一题或查看结果
+    function nextQuestion() {
+        currentQuestion++;
+        
+        if (currentQuestion < questions.length) {
+            renderQuestion();
+        } else {
+            showResults();
+        }
+    }
+    
+    // 显示结果
+    function showResults() {
+        let html = `
+            <div class="results">
+                <h3>测验完成！</h3>
+                <p>你的得分: ${score} / ${questions.length}</p>
+                <p>正确率: ${Math.round(score / questions.length * 100)}%</p>
+        `;
+        
+        if (score === questions.length) {
+            html += '<p class="perfect">太棒了！你掌握了所有的知识点！</p>';
+        } else if (score >= questions.length * 0.7) {
+            html += '<p class="good">不错！你已经掌握了大部分知识点。</p>';
+        } else {
+            html += '<p class="needs-improvement">继续加油！你可以回顾之前的学习内容，巩固知识。</p>';
+        }
+        
+        html += '<button class="restart">重新测验</button>';
+        html += '</div>';
+        
+        quizContainer.innerHTML = html;
+        
+        document.querySelector('.restart').addEventListener('click', () => {
+            currentQuestion = 0;
+            score = 0;
+            renderQuestion();
+        });
+    }
+    
+    // 开始测验
+    renderQuestion();
+});
+</script>
+
+<style>
+    .mini-circle {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 10px;
+    }
+    
+    .mini-circle-svg {
+        width: 100%;
+        height: 100%;
+    }
+    
+    .option {
+        padding: 15px;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .option:hover {
+        border-color: var(--primary-color);
+    }
+      .option.selected {
+        background-color: #e6f2ff;
+        border-color: var(--primary-color);
+    }
+    
+    .option.correct-answer {
+        background-color: rgba(76, 175, 80, 0.2);
+        border-color: #4CAF50;
+    }
+      .feedback {
+        padding: 10px 15px;
+        border-radius: 5px;
+        margin: 15px 0;
+        font-weight: bold;
+        text-align: center;
+    }
+    
+    .feedback.warning {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+    
+    .feedback.correct {
+        background-color: rgba(76, 175, 80, 0.1);
+        color: #2E7D32;
+        border: 1px solid #4CAF50;
+    }
+    
+    .feedback.incorrect {
+        background-color: rgba(244, 67, 54, 0.1);
+        color: #c62828;
+        border: 1px solid #f44336;
+    }
+    
+    .perfect {
+        color: var(--secondary-color);
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+    
+    .good {
+        color: var(--accent-color);
+        font-weight: bold;
+    }
+    
+    .needs-improvement {
+        color: var(--accent-color-2);
+        font-weight: bold;
+    }
+    
+    .restart {
+        display: block;
+        margin: 20px auto;
+        padding: 10px 20px;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    
+    .restart:hover {
+        background-color: #3367d6;
+    }
+    
+    .score {
+        margin-top: 15px;
+        text-align: right;
+        font-style: italic;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,476 @@
+/* Global Styles */
+:root {
+    --primary-color: #4285f4;
+    --secondary-color: #34a853;
+    --accent-color: #fbbc05;
+    --accent-color-2: #ea4335;
+    --text-color: #333;
+    --light-bg: #f8f9fa;
+    --dark-bg: #212529;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--light-bg);
+}
+
+header {
+    background-color: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 1rem 0;
+}
+
+header h1 {
+    text-align: center;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+nav ul {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    flex-wrap: wrap;
+}
+
+nav ul li {
+    margin: 0 0.5rem;
+}
+
+nav ul li a {
+    color: var(--text-color);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+nav ul li a:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+main {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+footer {
+    text-align: center;
+    padding: 1rem;
+    background-color: var(--dark-bg);
+    color: white;
+    margin-top: 2rem;
+}
+
+/* Home Page */
+.intro {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 2rem;
+}
+
+.modules {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.module-card {
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.module-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.module-card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+}
+
+.module-card .content {
+    padding: 1.5rem;
+}
+
+.module-card h3 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.module-card p {
+    margin-bottom: 1rem;
+}
+
+.module-card a {
+    display: inline-block;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.module-card a:hover {
+    background-color: #3367d6;
+}
+
+/* Circle Visualization */
+.circle-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+.circle-wrapper {
+    text-align: center;
+    width: 280px;
+    transition: transform 0.3s;
+}
+
+.circle-wrapper.visible {
+    transform: translateY(0);
+}
+
+.circle {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    margin: 1rem auto;
+    position: relative;
+    background-color: #fff;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.circle-background {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: #f8f9fa;
+    border: 2px solid #dee2e6;
+}
+
+.circle-divider {
+    position: absolute;
+    width: 50%;
+    height: 2px;
+    background-color: #dee2e6;
+    top: 50%;
+    right: 0;
+    transform-origin: left center;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.circle-highlight {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: var(--primary-color);
+    transform-origin: center;
+    opacity: 0;
+    transition: opacity 0.5s;
+    border-radius: 50%;
+}
+
+.fraction-label {
+    font-size: 1.5rem;
+    margin-top: 0.5rem;
+    font-weight: bold;
+}
+
+.decimal-label, .percent-label {
+    font-size: 1.25rem;
+    margin-top: 0.25rem;
+}
+
+/* Learning Steps Section */
+.learning-steps {
+    background-color: #f1f8ff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.learning-steps h3 {
+    color: var(--primary-color);
+    margin-bottom: 0.8rem;
+}
+
+.learning-steps ol {
+    margin-left: 1.5rem;
+    padding-top: 0.5rem;
+}
+
+.learning-steps li {
+    margin-bottom: 0.8rem;
+    line-height: 1.6;
+}
+
+/* Examples Section */
+.fraction-examples {
+    margin-top: 2.5rem;
+}
+
+.example-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.example-item {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s;
+}
+
+.example-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.example-name {
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+/* Navigation Buttons */
+.navigation-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 3rem;
+}
+
+.prev-button, .next-button {
+    display: inline-block;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.7rem 1.5rem;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: all 0.3s;
+    font-weight: 500;
+}
+
+.prev-button:hover, .next-button:hover {
+    background-color: #3367d6;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Practice Section */
+.practice-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.question-container {
+    margin-bottom: 2rem;
+}
+
+.options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.option {
+    padding: 1rem;
+    background-color: var(--light-bg);
+    border: 2px solid #dee2e6;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s;
+}
+
+.option:hover {
+    border-color: var(--primary-color);
+}
+
+.option.selected {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.feedback {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.feedback.correct {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.feedback.incorrect {
+    background-color: var(--accent-color-2);
+    color: white;
+}
+
+button.next, button.check {
+    display: block;
+    margin: 1rem auto;
+    padding: 0.5rem 1.5rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button.next:hover, button.check:hover {
+    background-color: #3367d6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    nav ul {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    nav ul li {
+        margin: 0.25rem 0;
+    }
+    
+    .modules {
+        grid-template-columns: 1fr;
+    }
+    
+    .circle-container {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+/* Practice Section */
+.practice-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.question-container {
+    margin-bottom: 2rem;
+}
+
+.options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.option {
+    padding: 1rem;
+    background-color: var(--light-bg);
+    border: 2px solid #dee2e6;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s;
+}
+
+.option:hover {
+    border-color: var(--primary-color);
+}
+
+.option.selected {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.feedback {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.feedback.correct {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.feedback.incorrect {
+    background-color: var(--accent-color-2);
+    color: white;
+}
+
+button.next, button.check {
+    display: block;
+    margin: 1rem auto;
+    padding: 0.5rem 1.5rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button.next:hover, button.check:hover {
+    background-color: #3367d6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    nav ul {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    nav ul li {
+        margin: 0.25rem 0;
+    }
+    
+    .modules {
+        grid-template-columns: 1fr;
+    }
+    
+    .circle-container {
+        flex-direction: column;
+        align-items: center;
+    }
+}

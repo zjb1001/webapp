@@ -1,0 +1,225 @@
+{% extends 'base.html' %}
+
+{% block title %}百分比学习 - 分数与百分比{% endblock %}
+
+{% block content %}
+<h2>分数与百分比</h2>
+<p class="intro">百分比是表示部分与整体关系的另一种方式。百分比告诉我们一个数是另一个数的百分之多少。</p>
+
+<div class="explanation">
+    <h3>分数到百分比的转换</h3>
+    <p>将分数转换为百分比，我们只需将分数计算出来，再乘以100，最后加上百分号（%）符号：</p>
+    <div class="conversion-formula">
+        <strong>百分比 = 分数 × 100%</strong>
+    </div>
+    <p>例如：</p>
+    <ul>
+        <li><strong>1/2 = 0.5 = 0.5 × 100% = 50%</strong></li>
+        <li><strong>1/4 = 0.25 = 0.25 × 100% = 25%</strong></li>
+        <li><strong>3/4 = 0.75 = 0.75 × 100% = 75%</strong></li>
+    </ul>
+</div>
+
+<div class="circle-container">
+    {% for fraction in fractions %}
+        {% if fraction.denominator in [2, 4, 5, 10] %}  <!-- 显示容易理解的分数 -->
+            <div class="circle-wrapper">                <div class="circle">
+                    <svg viewBox="0 0 100 100" class="circle-svg">
+                        <!-- 圆形背景 -->
+                        <circle cx="50" cy="50" r="48" fill="#f8f9fa" stroke="#dee2e6" stroke-width="1"></circle>
+                        
+                        <!-- 分割线 -->
+                        {% for i in range(fraction.denominator) %}
+                            {% set angle = i * 360 / fraction.denominator %}
+                            <line 
+                                x1="50" 
+                                y1="50" 
+                                x2="{{ 50 + 48 * (angle | cos) }}" 
+                                y2="{{ 50 + 48 * (angle | sin) }}" 
+                                stroke="#dee2e6" 
+                                stroke-width="1">
+                            </line>
+                        {% endfor %}
+                        
+                        <!-- 高亮部分 -->
+                        {% for i in range(fraction.numerator) %}
+                            {% set start_angle = i * 360 / fraction.denominator %}
+                            {% set end_angle = (i + 1) * 360 / fraction.denominator %}
+                            {% set large_arc_flag = 0 %}
+                            {% if (end_angle - start_angle) > 180 %}{% set large_arc_flag = 1 %}{% endif %}
+                            
+                            <path 
+                                d="M 50 50 
+                                   L {{ 50 + 48 * (start_angle | cos) }} {{ 50 + 48 * (start_angle | sin) }}
+                                   A 48 48 0 {{ large_arc_flag }} 1 {{ 50 + 48 * (end_angle | cos) }} {{ 50 + 48 * (end_angle | sin) }}
+                                   Z" 
+                                fill="#4285f4" 
+                                fill-opacity="0.8">
+                            </path>
+                        {% endfor %}
+                    </svg>
+                </div>
+                <div class="fraction-label">
+                    <span>{{ fraction.numerator }}/{{ fraction.denominator }}</span>
+                </div>
+                <div class="decimal-label">
+                    <span>= {{ (fraction.numerator / fraction.denominator)|round(3) }}</span>
+                </div>
+                <div class="percent-label">
+                    <span>= {{ ((fraction.numerator / fraction.denominator) * 100)|round(1) }}%</span>
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>
+
+<div class="common-percentages">
+    <h3>常见的百分比</h3>
+    <div class="percentage-list">
+        <div class="percentage-item">
+            <span class="percentage">100%</span>
+            <span class="description">整体，完整的一个</span>
+        </div>
+        <div class="percentage-item">
+            <span class="percentage">50%</span>
+            <span class="description">一半，1/2</span>
+        </div>
+        <div class="percentage-item">
+            <span class="percentage">25%</span>
+            <span class="description">四分之一，1/4</span>
+        </div>
+        <div class="percentage-item">
+            <span class="percentage">75%</span>
+            <span class="description">四分之三，3/4</span>
+        </div>
+        <div class="percentage-item">
+            <span class="percentage">20%</span>
+            <span class="description">五分之一，1/5</span>
+        </div>
+        <div class="percentage-item">
+            <span class="percentage">10%</span>
+            <span class="description">十分之一，1/10</span>
+        </div>
+    </div>
+</div>
+
+<div class="real-world-examples">
+    <h3>生活中的百分比</h3>
+    <div class="examples-list">
+        <div class="example-item">
+            <span class="context">打折：</span>
+            <span class="explanation">7折 = 原价的70%</span>
+        </div>
+        <div class="example-item">
+            <span class="context">考试成绩：</span>
+            <span class="explanation">90分（满分100）= 90%</span>
+        </div>
+        <div class="example-item">
+            <span class="context">电池电量：</span>
+            <span class="explanation">电量剩余一半 = 50%</span>
+        </div>
+        <div class="example-item">
+            <span class="context">饮料喝了四分之一：</span>
+            <span class="explanation">剩余75%</span>
+        </div>
+    </div>
+</div>
+
+<div class="navigation-buttons">
+    <a href="{{ url_for('learn_fraction_value') }}" class="prev-button">← 上一步：分数的值</a>
+    <a href="{{ url_for('practice') }}" class="next-button">开始练习 →</a>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .conversion-formula {
+        background-color: #f1f8ff;
+        padding: 1rem;
+        border-radius: 4px;
+        margin: 1rem 0;
+        text-align: center;
+        font-size: 1.2rem;
+    }
+    
+    .percentage-list, .examples-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin: 1rem 0;
+    }
+    
+    .percentage-item, .example-item {
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .percentage {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--primary-color);
+        display: block;
+    }
+    
+    .context {
+        font-weight: bold;
+    }
+    
+    .navigation-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 2rem;
+    }
+    
+    .prev-button, .next-button {
+        display: inline-block;
+        background-color: var(--primary-color);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: background-color 0.3s;
+    }
+    
+    .prev-button:hover, .next-button:hover {
+        background-color: #3367d6;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 添加SVG动画效果
+        const circleWrappers = document.querySelectorAll('.circle-wrapper');
+        
+        circleWrappers.forEach((wrapper, index) => {
+            setTimeout(() => {
+                // 获取SVG元素
+                const svg = wrapper.querySelector('.circle-svg');
+                
+                // 动画显示分割线
+                const lines = svg.querySelectorAll('line');
+                lines.forEach((line, lineIndex) => {
+                    setTimeout(() => {
+                        line.style.transition = 'all 0.5s ease-out';
+                        line.style.opacity = '1';
+                    }, lineIndex * 100);
+                });
+                
+                // 动画显示高亮部分
+                const paths = svg.querySelectorAll('path');
+                paths.forEach((path, pathIndex) => {
+                    setTimeout(() => {
+                        path.style.transition = 'all 0.8s ease-out';
+                        path.style.fillOpacity = '0.8';
+                    }, lines.length * 100 + pathIndex * 200);
+                });
+                
+            }, index * 500);
+        });
+    });
+</script>
+{% endblock %}

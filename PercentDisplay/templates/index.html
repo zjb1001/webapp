@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}百分比学习 - 首页{% endblock %}
+
+{% block content %}
+<div class="intro">
+    <h2>探索分数和百分比的奇妙世界</h2>
+    <p>欢迎来到百分比学习平台！在这里，我们将通过生动有趣的方式，帮助你理解分数和百分比的概念。</p>
+</div>
+
+<div class="modules">
+    <div class="module-card">
+        <div class="content">
+            <h3>第一步：认识分数</h3>
+            <p>学习如何识别圆形中的分数部分，理解分子和分母的概念。</p>
+            <a href="{{ url_for('learn_fraction_identification') }}">开始学习</a>
+        </div>
+    </div>
+    
+    <div class="module-card">
+        <div class="content">
+            <h3>第二步：分数的值</h3>
+            <p>探索不同分数的数值，了解它们之间的大小关系。</p>
+            <a href="{{ url_for('learn_fraction_value') }}">开始学习</a>
+        </div>
+    </div>
+    
+    <div class="module-card">
+        <div class="content">
+            <h3>第三步：分数与百分比</h3>
+            <p>了解分数和百分比之间的关系，学会进行转换。</p>
+            <a href="{{ url_for('learn_fraction_percent') }}">开始学习</a>
+        </div>
+    </div>
+    
+    <div class="module-card">
+        <div class="content">
+            <h3>练习</h3>
+            <p>巩固你的知识，测试你对分数和百分比的理解程度。</p>
+            <a href="{{ url_for('practice') }}">开始练习</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

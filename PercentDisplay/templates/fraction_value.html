@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+
+{% block title %}百分比学习 - 分数的值{% endblock %}
+
+{% block content %}
+<h2>分数的值</h2>
+<p class="intro">不同的分数代表不同的数值。在这个页面中，我们将探索各种分数的实际值。</p>
+
+<div class="circle-container">
+    {% for fraction in fractions %}
+        {% if fraction.denominator <= 6 %}  <!-- 显示分母不超过6的分数 -->
+            <div class="circle-wrapper">                <div class="circle">
+                    <svg viewBox="0 0 100 100" class="circle-svg">
+                        <!-- 圆形背景 -->
+                        <circle cx="50" cy="50" r="48" fill="#f8f9fa" stroke="#dee2e6" stroke-width="1"></circle>
+                        
+                        <!-- 分割线 -->
+                        {% for i in range(fraction.denominator) %}
+                            {% set angle = i * 360 / fraction.denominator %}
+                            <line 
+                                x1="50" 
+                                y1="50" 
+                                x2="{{ 50 + 48 * (angle | cos) }}" 
+                                y2="{{ 50 + 48 * (angle | sin) }}" 
+                                stroke="#dee2e6" 
+                                stroke-width="1">
+                            </line>
+                        {% endfor %}
+                        
+                        <!-- 高亮部分 - 高亮多个部分 -->
+                        {% if fraction.numerator == 1 %}
+                            <!-- 如果只有一部分，直接使用简单路径 -->
+                            {% set start_angle = 0 %}
+                            {% set end_angle = 360 / fraction.denominator %}
+                            {% set large_arc_flag = 0 %}
+                            {% if end_angle > 180 %}{% set large_arc_flag = 1 %}{% endif %}
+                            
+                            <path 
+                                d="M 50 50 
+                                   L {{ 50 + 48 * (start_angle | cos) }} {{ 50 + 48 * (start_angle | sin) }}
+                                   A 48 48 0 {{ large_arc_flag }} 1 {{ 50 + 48 * (end_angle | cos) }} {{ 50 + 48 * (end_angle | sin) }}
+                                   Z" 
+                                fill="#4285f4" 
+                                fill-opacity="0.8">
+                            </path>
+                        {% else %}
+                            <!-- 如果有多个部分，需要为每个部分创建路径 -->
+                            {% for i in range(fraction.numerator) %}
+                                {% set start_angle = i * 360 / fraction.denominator %}
+                                {% set end_angle = (i + 1) * 360 / fraction.denominator %}
+                                {% set large_arc_flag = 0 %}
+                                {% if (end_angle - start_angle) > 180 %}{% set large_arc_flag = 1 %}{% endif %}
+                                
+                                <path 
+                                    d="M 50 50 
+                                       L {{ 50 + 48 * (start_angle | cos) }} {{ 50 + 48 * (start_angle | sin) }}
+                                       A 48 48 0 {{ large_arc_flag }} 1 {{ 50 + 48 * (end_angle | cos) }} {{ 50 + 48 * (end_angle | sin) }}
+                                       Z" 
+                                    fill="#4285f4" 
+                                    fill-opacity="0.8">
+                                </path>
+                            {% endfor %}
+                        {% endif %}
+                    </svg>
+                </div>
+                <div class="fraction-label">
+                    <span>{{ fraction.numerator }}/{{ fraction.denominator }}</span>
+                </div>
+                <div class="decimal-label">
+                    <span>≈ {{ (fraction.numerator / fraction.denominator)|round(3) }}</span>
+                </div>
+                <p>
+                    这个圆被分成{{ fraction.denominator }}份，蓝色部分占了{{ fraction.numerator }}份，
+                    即{{ fraction.numerator }}/{{ fraction.denominator }}，
+                    约等于{{ (fraction.numerator / fraction.denominator)|round(3) }}。
+                </p>
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>
+
+<div class="explanation">
+    <h3>理解分数的值</h3>
+    <p>分数代表一个除法运算，我们可以将分子除以分母来得到其近似的小数值：</p>
+    <ul>
+        <li><strong>1/2 = 1 ÷ 2 = 0.5</strong></li>
+        <li><strong>1/3 = 1 ÷ 3 ≈ 0.333</strong></li>
+        <li><strong>2/3 = 2 ÷ 3 ≈ 0.667</strong></li>
+        <li><strong>1/4 = 1 ÷ 4 = 0.25</strong></li>
+        <li><strong>3/4 = 3 ÷ 4 = 0.75</strong></li>
+    </ul>
+    <p>通过比较这些小数值，我们可以理解不同分数之间的大小关系。</p>
+</div>
+
+<div class="fraction-comparison">
+    <h3>分数的大小比较</h3>
+    <div class="comparison-container">
+        <div class="comparison-item">1/2 > 1/3</div>
+        <div class="comparison-item">2/3 > 1/2</div>
+        <div class="comparison-item">3/4 > 2/3</div>
+        <div class="comparison-item">1/6 < 1/5 < 1/4 < 1/3 < 1/2</div>
+    </div>
+    <p>分母相同时，分子越大，分数值越大；分子相同时，分母越大，分数值越小。</p>
+</div>
+
+<div class="real-world-examples">
+    <h3>生活中的分数例子</h3>
+    <div class="example-container">
+        <div class="example-item">
+            <div class="example-name">半个苹果</div>
+            <div class="example-description">一个苹果切成两半，每一半是 1/2。</div>
+        </div>
+        <div class="example-item">
+            <div class="example-name">四分之三杯水</div>
+            <div class="example-description">一个杯子中，水占了总容量的四分之三，是 3/4。</div>
+        </div>
+        <div class="example-item">
+            <div class="example-name">三分之二块巧克力</div>
+            <div class="example-description">一块巧克力分成三份，吃了两份，吃掉了 2/3。</div>
+        </div>
+    </div>
+</div>
+
+<div class="navigation-buttons">
+    <a href="{{ url_for('learn_fraction_identification') }}" class="prev-button">← 上一步：认识分数</a>
+    <a href="{{ url_for('learn_fraction_percent') }}" class="next-button">下一步：分数与百分比 →</a>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .comparison-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin: 1rem 0;
+    }
+    
+    .comparison-item {
+        background-color: #f1f8ff;
+        padding: 1rem;
+        border-radius: 4px;
+        text-align: center;
+        font-weight: bold;
+        color: var(--primary-color);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .fraction-comparison, .real-world-examples {
+        margin-top: 2.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 添加SVG动画效果
+        const circleWrappers = document.querySelectorAll('.circle-wrapper');
+        
+        circleWrappers.forEach((wrapper, index) => {
+            setTimeout(() => {
+                // 获取SVG元素
+                const svg = wrapper.querySelector('.circle-svg');
+                
+                // 动画显示分割线
+                const lines = svg.querySelectorAll('line');
+                lines.forEach((line, lineIndex) => {
+                    setTimeout(() => {
+                        line.style.transition = 'all 0.5s ease-out';
+                        line.style.opacity = '1';
+                    }, lineIndex * 100);
+                });
+                
+                // 动画显示高亮部分
+                const paths = svg.querySelectorAll('path');
+                paths.forEach((path, pathIndex) => {
+                    setTimeout(() => {
+                        path.style.transition = 'all 0.8s ease-out';
+                        path.style.fillOpacity = '0.8';
+                    }, lines.length * 100 + pathIndex * 200);
+                });
+                
+            }, index * 500);
+        });
+    });
+</script>
+{% endblock %}
