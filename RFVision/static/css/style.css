@@ -1,0 +1,1005 @@
+/*
+================================================================================
+RFVision 射频通信仿真器 - 主样式表
+================================================================================
+
+文件描述: RFVision系统的完整CSS样式定义
+创建时间: 2024
+作者: RFVision开发团队
+版本: v1.0.0
+
+样式架构:
+=========
+1. 全局基础样式 (Global Base Styles)
+   - 字体系统和颜色规范
+   - 响应式布局基础
+   - 动画和过渡效果
+
+2. 组件样式 (Component Styles)
+   - 导航栏和菜单
+   - 卡片和面板
+   - 按钮和表单控件
+   - 图表容器和画布
+
+3. 页面专用样式 (Page-Specific Styles)
+   - 首页展示区域
+   - 载波信号演示页面
+   - 数字调制演示页面
+   - 信号传输演示页面
+
+4. 可视化专用样式 (Visualization Styles)
+   - Canvas画布容器
+   - 信号波形显示区域
+   - 参数控制面板
+   - 图表图例和标签
+
+5. 交互式元素 (Interactive Elements)
+   - 滑块和范围控件
+   - 标签页切换
+   - 模态对话框
+   - 工具提示
+
+设计理念:
+=========
+- 现代化扁平设计风格
+- 高对比度和可读性
+- 科技感的配色方案
+- 平滑的动画过渡
+- 响应式布局支持
+
+技术特点:
+=========
+- CSS Grid和Flexbox布局
+- CSS变量和自定义属性
+- 媒体查询响应式设计
+- CSS动画和transform
+- 现代浏览器兼容性
+
+色彩规范:
+=========
+- 主色调: #667eea (科技蓝)
+- 辅助色: #764ba2 (深紫)
+- 成功色: #28a745 (绿色)
+- 警告色: #ffc107 (黄色)
+- 危险色: #dc3545 (红色)
+- 信息色: #17a2b8 (青色)
+
+================================================================================
+*/
+
+/* RF Vision - 自定义样式 */
+
+/* 全局样式 */
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* 渐变背景 */
+.bg-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* 导航栏样式 */
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+/* 卡片悬停效果 */
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+/* 英雄区域 */
+.hero-section {
+    border-radius: 15px;
+    margin: 0 15px;
+}
+
+/* 物理公式样式 */
+.physics-formula {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    background-color: #f8f9fa;
+    border-left: 4px solid #007bff;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 5px;
+}
+
+.physics-formula strong {
+    color: #495057;
+    font-weight: 600;
+}
+
+/* MathJax公式样式调整 */
+.MathJax {
+    font-size: 1em !important;
+}
+
+/* 控制面板样式 */
+.form-range {
+    margin: 10px 0;
+}
+
+.form-range::-webkit-slider-thumb {
+    background: #007bff;
+    border: none;
+    border-radius: 50%;
+    box-shadow: 0 2px 6px rgba(0,123,255,0.3);
+}
+
+.form-range::-moz-range-thumb {
+    background: #007bff;
+    border: none;
+    border-radius: 50%;
+    box-shadow: 0 2px 6px rgba(0,123,255,0.3);
+}
+
+/* 按钮样式 */
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, #007bff, #0056b3);
+}
+
+.btn-success {
+    background: linear-gradient(45deg, #28a745, #1e7e34);
+}
+
+.btn-warning {
+    background: linear-gradient(45deg, #ffc107, #e0a800);
+    color: #212529;
+}
+
+.btn-danger {
+    background: linear-gradient(45deg, #dc3545, #c82333);
+}
+
+/* 特色图标样式 */
+.feature-icon {
+    transition: transform 0.3s ease;
+}
+
+.feature-icon:hover {
+    transform: scale(1.1);
+}
+
+/* 图表容器样式 */
+.chart-container {
+    position: relative;
+    height: 400px;
+    margin: 20px 0;
+}
+
+/* 加载动画 */
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255,255,255,.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* 参数显示卡片 */
+.parameter-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    margin: 10px 0;
+}
+
+.parameter-card h4 {
+    margin: 10px 0;
+    font-weight: 700;
+}
+
+/* 数字调制专用样式 */
+.binary-display {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+    border: 2px solid #dee2e6;
+}
+
+.text-binary-mapping {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+.char-mapping {
+    background: white;
+    border: 2px solid #007bff;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    min-width: 80px;
+    transition: all 0.3s ease;
+}
+
+.char-mapping:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(0,123,255,0.3);
+}
+
+.char-mapping .character {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #007bff;
+    margin-bottom: 5px;
+}
+
+.char-mapping .ascii {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.char-mapping .binary {
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    background: #f8f9fa;
+    padding: 3px 6px;
+    border-radius: 4px;
+    color: #28a745;
+    font-weight: bold;
+}
+
+.binary-sequence {
+    background: white;
+    border: 2px solid #28a745;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+}
+
+.binary-sequence .label {
+    font-weight: bold;
+    color: #28a745;
+    margin-bottom: 10px;
+}
+
+.binary-stream {
+    font-family: 'Courier New', monospace;
+    font-size: 1.1em;
+    letter-spacing: 2px;
+    color: #333;
+    word-break: break-all;
+    line-height: 1.5;
+}
+
+.binary-bit {
+    display: inline-block;
+    padding: 2px 4px;
+    margin: 1px;
+    border-radius: 3px;
+    transition: all 0.3s ease;
+}
+
+.binary-bit.bit-0 {
+    background-color: #ffebee;
+    color: #c62828;
+    border: 1px solid #e57373;
+}
+
+.binary-bit.bit-1 {
+    background-color: #e8f5e8;
+    color: #2e7d32;
+    border: 1px solid #81c784;
+}
+
+.binary-bit:hover {
+    transform: scale(1.2);
+    z-index: 10;
+    position: relative;
+}
+
+.digital-mapping {
+    background: white;
+    border: 2px solid #ffc107;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 15px 0;
+    text-align: center;
+}
+
+.level-explanation {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.level-0, .level-1 {
+    padding: 10px 15px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 1.1em;
+    border: 2px solid;
+    transition: all 0.3s ease;
+}
+
+.level-0 {
+    background-color: #ffebee;
+    color: #c62828;
+    border-color: #e57373;
+}
+
+.level-1 {
+    background-color: #e8f5e8;
+    color: #2e7d32;
+    border-color: #81c784;
+}
+
+.level-0:hover, .level-1:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.modulation-principle {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    border: 2px solid #ffc107;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.modulation-principle h4 {
+    color: #856404;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.principle-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.principle-item {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.principle-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+.principle-item .symbol {
+    font-size: 2em;
+    margin-bottom: 10px;
+}
+
+.principle-item .description {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.bit-by-bit-demo {
+    background: white;
+    border: 2px solid #17a2b8;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.bit-by-bit-demo h4 {
+    color: #0c5460;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.bit-demo-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.bit-demo-item {
+    background: #f8f9fa;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.bit-demo-item:hover {
+    border-color: #17a2b8;
+    box-shadow: 0 4px 15px rgba(23,162,184,0.3);
+}
+
+.bit-demo-item.active {
+    border-color: #007bff;
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+}
+
+.bit-value {
+    font-size: 2em;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.bit-value.bit-0 {
+    color: #c62828;
+}
+
+.bit-value.bit-1 {
+    color: #2e7d32;
+}
+
+.wave-preview {
+    height: 60px;
+    width: 100%;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    margin: 10px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.wave-animation {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    width: 100%;
+    height: 2px;
+    background: #007bff;
+    animation: wave-move 2s infinite linear;
+}
+
+@keyframes wave-move {
+    0% { transform: translateY(-50%) translateX(-100%); }
+    100% { transform: translateY(-50%) translateX(100%); }
+}
+
+.modulation-controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.step-indicator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.step-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.step-dot.active {
+    background-color: #007bff;
+    transform: scale(1.3);
+}
+
+.step-dot.completed {
+    background-color: #28a745;
+}
+
+/* 单比特演示区域样式 */
+.single-bit-demo {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    border: 3px solid #2196f3;
+    border-radius: 15px;
+    padding: 30px;
+    margin: 30px 0;
+    box-shadow: 0 8px 25px rgba(33, 150, 243, 0.3);
+}
+
+.single-bit-demo h2 {
+    text-align: center;
+    color: #1565c0;
+    margin-bottom: 25px;
+    font-size: 1.8em;
+}
+
+.bit-selection {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.bit-selection h4 {
+    color: #1976d2;
+    margin-bottom: 15px;
+}
+
+.bit-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.bit-btn {
+    padding: 15px 30px;
+    font-size: 1.2em;
+    font-weight: bold;
+    border: 3px solid #ddd;
+    border-radius: 10px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 120px;
+}
+
+.bit-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+}
+
+.bit-btn[data-bit="0"] {
+    color: #c62828;
+    border-color: #e57373;
+}
+
+.bit-btn[data-bit="0"]:hover,
+.bit-btn[data-bit="0"].active {
+    background: #ffebee;
+    border-color: #c62828;
+    box-shadow: 0 6px 20px rgba(198, 40, 40, 0.3);
+}
+
+.bit-btn[data-bit="1"] {
+    color: #2e7d32;
+    border-color: #81c784;
+}
+
+.bit-btn[data-bit="1"]:hover,
+.bit-btn[data-bit="1"].active {
+    background: #e8f5e8;
+    border-color: #2e7d32;
+    box-shadow: 0 6px 20px rgba(46, 125, 50, 0.3);
+}
+
+.single-bit-process {
+    display: grid;
+    gap: 25px;
+}
+
+.process-step {
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.process-step:hover {
+    border-color: #2196f3;
+    box-shadow: 0 4px 15px rgba(33, 150, 243, 0.2);
+}
+
+.process-step h4 {
+    color: #1565c0;
+    margin-bottom: 15px;
+    font-size: 1.3em;
+    border-bottom: 2px solid #e3f2fd;
+    padding-bottom: 8px;
+}
+
+.digital-level-display {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.level-box {
+    background: white;
+    border: 3px solid #4caf50;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    min-width: 200px;
+    transition: all 0.3s ease;
+}
+
+.level-box.bit-0 {
+    border-color: #f44336;
+}
+
+.level-value {
+    font-size: 2.5em;
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+}
+
+.level-box.bit-0 .level-value {
+    color: #c62828;
+}
+
+.level-box .level-value {
+    color: #2e7d32;
+}
+
+.level-description {
+    font-size: 1.1em;
+    color: #666;
+}
+
+.carrier-info {
+    text-align: center;
+    background: #f5f5f5;
+    padding: 10px;
+    border-radius: 8px;
+    margin: 15px 0;
+    font-size: 1.1em;
+    color: #1976d2;
+    font-weight: 500;
+}
+
+.level-chart-container,
+.carrier-chart-container,
+.modulated-chart-container {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 15px 0;
+}
+
+.modulation-explanation {
+    background: #fff3e0;
+    border: 2px solid #ff9800;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 15px 0;
+    font-size: 1.1em;
+    color: #ef6c00;
+}
+
+.comparison-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.comparison-chart {
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.comparison-chart:hover {
+    border-color: #2196f3;
+    box-shadow: 0 4px 15px rgba(33, 150, 243, 0.2);
+}
+
+.comparison-chart h5 {
+    margin-bottom: 15px;
+    color: #1565c0;
+    font-size: 1.1em;
+}
+
+.animation-controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 2px solid #e3f2fd;
+}
+
+.animation-controls .btn {
+    padding: 12px 24px;
+    font-size: 1.1em;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.animation-controls .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+/* 动画效果 */
+.level-box.pulse {
+    animation: pulse-glow 1.5s infinite;
+}
+
+@keyframes pulse-glow {
+    0% { box-shadow: 0 0 5px rgba(76, 175, 80, 0.5); }
+    50% { box-shadow: 0 0 20px rgba(76, 175, 80, 0.8); }
+    100% { box-shadow: 0 0 5px rgba(76, 175, 80, 0.5); }
+}
+
+.level-box.bit-0.pulse {
+    animation: pulse-glow-red 1.5s infinite;
+}
+
+@keyframes pulse-glow-red {
+    0% { box-shadow: 0 0 5px rgba(244, 67, 54, 0.5); }
+    50% { box-shadow: 0 0 20px rgba(244, 67, 54, 0.8); }
+    100% { box-shadow: 0 0 5px rgba(244, 67, 54, 0.5); }
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .hero-section {
+        margin: 0;
+        border-radius: 0;
+    }
+    
+    .physics-formula {
+        font-size: 0.8rem;
+        padding: 10px;
+    }
+    
+    .btn {
+        margin: 5px 0;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .text-binary-mapping {
+        justify-content: center;
+    }
+    
+    .char-mapping {
+        min-width: 60px;
+        padding: 8px;
+    }
+    
+    .level-explanation {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .principle-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .bit-demo-container {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+    
+    .bit-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .comparison-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .animation-controls {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .animation-controls .btn {
+        width: 80%;
+        max-width: 300px;
+    }
+}
+
+/* 调制类型按钮组 */
+.btn-group .btn-check:checked + .btn {
+    background: linear-gradient(45deg, #28a745, #1e7e34);
+    color: white;
+    border-color: #1e7e34;
+}
+
+/* 滑块标签样式 */
+.form-text {
+    font-weight: 500;
+    color: #6c757d;
+}
+
+/* Chart.js 图表样式覆盖 */
+.chart-container canvas {
+    border-radius: 8px;
+    background-color: white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* 公式背景高亮 */
+.physics-formula hr {
+    border-color: #dee2e6;
+    margin: 10px 0;
+}
+
+/* 状态指示器 */
+.status-indicator {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.status-active {
+    background-color: #28a745;
+    animation: pulse 2s infinite;
+}
+
+.status-inactive {
+    background-color: #6c757d;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(40, 167, 69, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+    }
+}
+
+/* 工具提示样式 */
+.tooltip-custom {
+    background-color: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* 代码块样式 */
+code {
+    background-color: #f1f3f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    color: #d63384;
+}
+
+/* 表格样式 */
+.table {
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.table th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+}
+
+/* 进度条样式 */
+.progress {
+    height: 8px;
+    border-radius: 4px;
+    background-color: #e9ecef;
+}
+
+.progress-bar {
+    border-radius: 4px;
+    background: linear-gradient(45deg, #007bff, #0056b3);
+}
+
+/* 徽章样式 */
+.badge {
+    font-weight: 500;
+    border-radius: 6px;
+    padding: 6px 10px;
+}
+
+/* 面包屑导航 */
+.breadcrumb {
+    background-color: transparent;
+    padding: 0;
+    margin-bottom: 1rem;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: ">";
+    color: #6c757d;
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* 动画类 */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+}
+
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #121212;
+        color: #ffffff;
+    }
+    
+    .card {
+        background-color: #1e1e1e;
+        color: #ffffff;
+    }
+    
+    .physics-formula {
+        background-color: #2d2d2d;
+        color: #e0e0e0;
+    }
+}

@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block title %}RF Vision - 射频信号可视化演示系统{% endblock %}
+
+{% block content %}
+<div class="hero-section bg-gradient text-white py-5 mb-4">
+    <div class="container text-center">
+        <h1 class="display-4 mb-4">RF Vision</h1>
+        <p class="lead mb-4">射频载波、调制、发射过程的物理原理可视化演示</p>
+        <p class="mb-4">基于真实的物理公式和数学模型，动态演示RF信号处理的各个环节</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <!-- 载波信号演示 -->
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-wave-square text-primary me-2"></i>
+                        载波信号
+                    </h5>
+                    <p class="card-text">
+                        演示基础载波信号的生成和特性。载波是RF通信的基础，通常是高频正弦波。
+                    </p>
+                    <div class="physics-formula bg-light p-3 rounded mb-3">
+                        <strong>载波信号公式:</strong><br>
+                        $$s_c(t) = A_c \cos(2\pi f_c t + \phi_c)$$
+                        <small class="text-muted">其中 $A_c$ 是振幅，$f_c$ 是载波频率，$\phi_c$ 是初始相位</small>
+                    </div>
+                    <ul class="list-unstyled mb-3">
+                        <li><i class="fas fa-check text-success me-2"></i>时域波形显示</li>
+                        <li><i class="fas fa-check text-success me-2"></i>频谱分析</li>
+                        <li><i class="fas fa-check text-success me-2"></i>参数实时调节</li>
+                    </ul>
+                </div>
+                <div class="card-footer">
+                    <a href="{{ url_for('carrier_demo') }}" class="btn btn-primary w-100">开始演示</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 信号调制演示 -->
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-broadcast-tower text-success me-2"></i>
+                        信号调制
+                    </h5>
+                    <p class="card-text">
+                        演示AM、FM、PM三种基本调制方式，展示信息如何调制到载波上。
+                    </p>
+                    <div class="physics-formula bg-light p-3 rounded mb-3">
+                        <strong>AM调制:</strong> $$s_{AM}(t) = A_c[1 + m \cdot m(t)]\cos(2\pi f_c t)$$
+                        <strong>FM调制:</strong> $$s_{FM}(t) = A_c\cos(2\pi f_c t + k_f\int_{-\infty}^{t} m(\tau)d\tau)$$
+                        <small class="text-muted">其中 $m(t)$ 是调制信号，$m$ 是调制深度</small>
+                    </div>
+                    <ul class="list-unstyled mb-3">
+                        <li><i class="fas fa-check text-success me-2"></i>AM/FM/PM对比</li>
+                        <li><i class="fas fa-check text-success me-2"></i>包络线分析</li>
+                        <li><i class="fas fa-check text-success me-2"></i>频谱变化</li>
+                    </ul>
+                </div>
+                <div class="card-footer">
+                    <a href="{{ url_for('modulation_demo') }}" class="btn btn-success w-100">开始演示</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 信号发射演示 -->
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-satellite-dish text-warning me-2"></i>
+                        信号发射
+                    </h5>
+                    <p class="card-text">
+                        演示调制信号的发射过程，包括功率放大、天线辐射和传播特性。
+                    </p>
+                    <div class="physics-formula bg-light p-3 rounded mb-3">
+                        <strong>发射功率:</strong> $$P_t = \frac{|s(t)|^2}{R}$$
+                        <strong>自由空间损耗:</strong> $$L = (\frac{4\pi d}{\lambda})^2$$
+                        <small class="text-muted">其中 $d$ 是距离，$\lambda$ 是波长</small>
+                    </div>
+                    <ul class="list-unstyled mb-3">
+                        <li><i class="fas fa-check text-success me-2"></i>天线辐射图</li>
+                        <li><i class="fas fa-check text-success me-2"></i>传播损耗</li>
+                        <li><i class="fas fa-check text-success me-2"></i>3D可视化</li>
+                    </ul>
+                </div>
+                <div class="card-footer">
+                    <a href="{{ url_for('transmission_demo') }}" class="btn btn-warning w-100">开始演示</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 技术特点 -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h2 class="text-center mb-4">技术特点</h2>
+        </div>
+        <div class="col-md-3 text-center mb-4">
+            <div class="feature-icon mb-3">
+                <i class="fas fa-calculator fa-3x text-primary"></i>
+            </div>
+            <h5>物理原理准确</h5>
+            <p class="text-muted">基于真实的Maxwell方程和RF理论</p>
+        </div>
+        <div class="col-md-3 text-center mb-4">
+            <div class="feature-icon mb-3">
+                <i class="fas fa-chart-line fa-3x text-success"></i>
+            </div>
+            <h5>实时动态演示</h5>
+            <p class="text-muted">参数调节立即显示波形变化</p>
+        </div>
+        <div class="col-md-3 text-center mb-4">
+            <div class="feature-icon mb-3">
+                <i class="fas fa-microscope fa-3x text-warning"></i>
+            </div>
+            <h5>多域分析</h5>
+            <p class="text-muted">时域、频域、相位域全面分析</p>
+        </div>
+        <div class="col-md-3 text-center mb-4">
+            <div class="feature-icon mb-3">
+                <i class="fas fa-cubes fa-3x text-info"></i>
+            </div>
+            <h5>3D可视化</h5>
+            <p class="text-muted">立体展示信号传播过程</p>
+        </div>
+    </div>
+
+    <!-- RF理论基础 -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">RF理论基础</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Maxwell方程组</h5>
+                            <p>RF信号的传播遵循Maxwell电磁场方程组：</p>
+                            <div class="physics-formula bg-light p-3 rounded">
+                                $$\nabla \times \vec{E} = -\frac{\partial \vec{B}}{\partial t}$$
+                                $$\nabla \times \vec{H} = \vec{J} + \frac{\partial \vec{D}}{\partial t}$$
+                                $$\nabla \cdot \vec{D} = \rho$$
+                                $$\nabla \cdot \vec{B} = 0$$
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>波动方程</h5>
+                            <p>在自由空间中，电磁波满足波动方程：</p>
+                            <div class="physics-formula bg-light p-3 rounded">
+                                $$\nabla^2 \vec{E} - \mu_0\epsilon_0\frac{\partial^2 \vec{E}}{\partial t^2} = 0$$
+                                $$c = \frac{1}{\sqrt{\mu_0\epsilon_0}} = 3 \times 10^8 \text{ m/s}$$
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // 启动时显示欢迎动画
+    document.addEventListener('DOMContentLoaded', function() {
+        // 为所有公式重新渲染MathJax
+        if (window.MathJax) {
+            MathJax.typesetPromise();
+        }
+        
+        // 添加卡片悬停效果
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+                this.style.transition = 'transform 0.3s ease';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    });
+</script>
+{% endblock %}

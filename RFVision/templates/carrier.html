@@ -1,0 +1,350 @@
+{% extends "base.html" %}
+
+{% block title %}载波信号演示 - RF Vision{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-wave-square text-primary me-2"></i>
+                载波信号演示
+            </h2>
+            <p class="lead">实时调节载波参数，观察时域波形和频域特性的变化</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- 控制面板 -->
+        <div class="col-lg-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">载波参数控制</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="carrierFreq" class="form-label">载波频率 (Hz)</label>
+                        <input type="range" class="form-range" id="carrierFreq" 
+                               min="1" max="100" value="10" step="1">
+                        <div class="form-text">当前值: <span id="carrierFreqValue">10</span> Hz</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="carrierAmp" class="form-label">载波振幅</label>
+                        <input type="range" class="form-range" id="carrierAmp" 
+                               min="0.1" max="2.0" value="1.0" step="0.1">
+                        <div class="form-text">当前值: <span id="carrierAmpValue">1.0</span></div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <button class="btn btn-primary w-100" onclick="generateCarrier()">
+                            <i class="fas fa-play me-2"></i>生成载波
+                        </button>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <button class="btn btn-success w-100" onclick="startAnimation()">
+                            <i class="fas fa-film me-2"></i>动态演示
+                        </button>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <button class="btn btn-warning w-100" onclick="stopAnimation()">
+                            <i class="fas fa-stop me-2"></i>停止动画
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 理论公式 -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0">载波信号公式</h6>
+                </div>
+                <div class="card-body">
+                    <div class="physics-formula">
+                        <strong>时域表达式:</strong><br>
+                        $$s_c(t) = A_c \cos(2\pi f_c t + \phi_c)$$
+                        <hr>
+                        <strong>频域表达式:</strong><br>
+                        $$S_c(f) = \frac{A_c}{2}[\delta(f-f_c) + \delta(f+f_c)]$$
+                        <hr>
+                        <strong>参数说明:</strong><br>
+                        • $A_c$: 载波振幅<br>
+                        • $f_c$: 载波频率<br>
+                        • $\phi_c$: 初始相位<br>
+                        • $\delta$: 狄拉克函数
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 图表显示区域 -->
+        <div class="col-lg-9">
+            <div class="row">
+                <!-- 时域波形 -->
+                <div class="col-12 mb-4">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">时域波形</h6>
+                            <small class="text-muted">载波信号的时间域表示</small>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="timeChart" width="800" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 频域特性 -->
+                <div class="col-12 mb-4">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">频域特性</h6>
+                            <small class="text-muted">载波信号的频谱分析</small>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="freqChart" width="800" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 信号参数显示 -->
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card bg-light">
+                        <div class="card-body text-center">
+                            <h6>频率</h6>
+                            <h4 class="text-primary" id="displayFreq">10 Hz</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-light">
+                        <div class="card-body text-center">
+                            <h6>波长</h6>
+                            <h4 class="text-success" id="displayWavelength">30,000 km</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-light">
+                        <div class="card-body text-center">
+                            <h6>周期</h6>
+                            <h4 class="text-warning" id="displayPeriod">0.1 s</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let timeChart, freqChart;
+let animationId;
+let currentData = null;
+
+// 初始化图表
+function initCharts() {
+    // 时域图表
+    const timeCtx = document.getElementById('timeChart').getContext('2d');
+    timeChart = new Chart(timeCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: '载波信号',
+                data: [],
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                borderWidth: 2,
+                fill: false,
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            animation: false,
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: '时间 (s)'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: '振幅'
+                    }
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: '载波信号时域波形: s(t) = A·cos(2πft)'
+                }
+            }
+        }
+    });
+
+    // 频域图表
+    const freqCtx = document.getElementById('freqChart').getContext('2d');
+    freqChart = new Chart(freqCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: '幅度谱',
+                data: [],
+                borderColor: 'rgb(255, 99, 132)',
+                backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                borderWidth: 2,
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            animation: false,
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: '频率 (Hz)'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: '幅度'
+                    }
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: '载波信号频谱: |S(f)|'
+                }
+            }
+        }
+    });
+}
+
+// 生成载波信号
+async function generateCarrier() {
+    const frequency = document.getElementById('carrierFreq').value;
+    const amplitude = document.getElementById('carrierAmp').value;
+    
+    try {
+        const response = await fetch(`/api/generate_carrier?frequency=${frequency}&amplitude=${amplitude}`);
+        const data = await response.json();
+        
+        currentData = data;
+        updateCharts(data);
+        updateDisplays(frequency, amplitude);
+        
+    } catch (error) {
+        console.error('生成载波信号失败:', error);
+        alert('生成载波信号失败，请检查网络连接');
+    }
+}
+
+// 更新图表
+function updateCharts(data) {
+    // 更新时域图表
+    timeChart.data.labels = data.carrier.time;
+    timeChart.data.datasets[0].data = data.carrier.amplitude;
+    timeChart.update('none');
+    
+    // 更新频域图表
+    freqChart.data.labels = data.spectrum.frequencies;
+    freqChart.data.datasets[0].data = data.spectrum.magnitude;
+    freqChart.update('none');
+}
+
+// 更新显示信息
+function updateDisplays(frequency, amplitude) {
+    const freq = parseFloat(frequency);
+    const c = 3e8; // 光速
+    
+    document.getElementById('displayFreq').textContent = freq + ' Hz';
+    document.getElementById('displayWavelength').textContent = formatWavelength(c / freq);
+    document.getElementById('displayPeriod').textContent = (1 / freq).toFixed(3) + ' s';
+}
+
+// 格式化波长显示
+function formatWavelength(wavelength) {
+    if (wavelength >= 1000) {
+        return (wavelength / 1000).toFixed(1) + ' km';
+    } else {
+        return wavelength.toFixed(1) + ' m';
+    }
+}
+
+// 开始动画
+function startAnimation() {
+    if (!currentData) {
+        alert('请先生成载波信号');
+        return;
+    }
+    
+    let frame = 0;
+    const totalFrames = currentData.carrier.time.length;
+    
+    function animate() {
+        if (frame >= totalFrames) {
+            frame = 0;
+        }
+        
+        // 更新时域图表显示当前帧
+        const currentTime = currentData.carrier.time.slice(0, frame);
+        const currentAmplitude = currentData.carrier.amplitude.slice(0, frame);
+        
+        timeChart.data.labels = currentTime;
+        timeChart.data.datasets[0].data = currentAmplitude;
+        timeChart.update('none');
+        
+        frame += 2; // 控制动画速度
+        animationId = requestAnimationFrame(animate);
+    }
+    
+    animate();
+}
+
+// 停止动画
+function stopAnimation() {
+    if (animationId) {
+        cancelAnimationFrame(animationId);
+        animationId = null;
+    }
+    
+    // 恢复完整波形显示
+    if (currentData) {
+        updateCharts(currentData);
+    }
+}
+
+// 实时更新参数显示
+document.getElementById('carrierFreq').addEventListener('input', function() {
+    document.getElementById('carrierFreqValue').textContent = this.value;
+});
+
+document.getElementById('carrierAmp').addEventListener('input', function() {
+    document.getElementById('carrierAmpValue').textContent = this.value;
+});
+
+// 页面加载完成后初始化
+document.addEventListener('DOMContentLoaded', function() {
+    initCharts();
+    generateCarrier(); // 自动生成初始载波
+    
+    // 重新渲染数学公式
+    if (window.MathJax) {
+        MathJax.typesetPromise();
+    }
+});
+</script>
+{% endblock %}

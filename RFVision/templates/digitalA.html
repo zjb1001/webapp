@@ -1,0 +1,1036 @@
+{% extends "base.html" %}
+
+{% block title %}数字通信演示 - RFVision{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="page-title">数字通信演示</h1>
+    <p class="page-description">探索数字信号如何通过模拟载波进行传输，理解数字调制的基本原理</p>
+
+    <!-- 导航标签 -->
+    <div class="tab-container">
+        <div class="tab-nav">
+            <button class="tab-btn active" data-tab="single-bit">单比特演示</button>
+            <button class="tab-btn" data-tab="text-demo">文本传输</button>
+            <button class="tab-btn" data-tab="comparison">调制对比</button>
+            <button class="tab-btn" data-tab="theory">理论基础</button>
+        </div>
+
+        <!-- 单比特演示标签页 -->
+        <div class="tab-content active" id="single-bit">
+            <div class="section-header">
+                <h2>单比特调制演示</h2>
+                <p>观察单个数字比特（0或1）如何通过不同调制方式转换为模拟信号</p>
+            </div>
+
+            <!-- 控制面板 -->
+            <div class="control-panel">
+                <div class="control-group">
+                    <label for="bit-select">选择比特值：</label>
+                    <select id="bit-select" class="form-control">
+                        <option value="0">比特 0</option>
+                        <option value="1">比特 1</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="modulation-type">调制方式：</label>
+                    <select id="modulation-type" class="form-control">
+                        <option value="ASK">ASK (幅移键控)</option>
+                        <option value="FSK">FSK (频移键控)</option>
+                        <option value="PSK">PSK (相移键控)</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="carrier-freq">载波频率 (Hz)：</label>
+                    <input type="range" id="carrier-freq" min="1" max="10" value="5" class="form-control">
+                    <span id="carrier-freq-value">5</span>
+                </div>
+
+                <div class="control-group">
+                    <label for="bit-duration">比特持续时间 (s)：</label>
+                    <input type="range" id="bit-duration" min="0.5" max="3" step="0.1" value="1" class="form-control">
+                    <span id="bit-duration-value">1.0</span>
+                </div>
+            </div>
+
+            <!-- 播放控制 -->
+            <div class="playback-controls">
+                <button id="play-btn" class="btn btn-primary">播放演示</button>
+                <button id="pause-btn" class="btn btn-secondary" disabled>暂停</button>
+                <button id="reset-btn" class="btn btn-secondary">重置</button>
+                <button id="step-btn" class="btn btn-info">单步执行</button>
+            </div>
+
+            <!-- 进度条 -->
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill"></div>
+                </div>
+                <div class="progress-labels">
+                    <span>数字信号</span>
+                    <span>载波生成</span>
+                    <span>调制过程</span>
+                    <span>输出信号</span>
+                </div>
+            </div>
+
+            <!-- 可视化区域 -->
+            <div class="visualization-area">
+                <!-- 数字信号显示 -->
+                <div class="signal-section">
+                    <h3>步骤1: 数字信号</h3>
+                    <div class="digital-display">
+                        <div class="bit-representation">
+                            <div class="bit-value" id="current-bit">0</div>
+                            <div class="bit-description" id="bit-description">逻辑低电平</div>
+                        </div>
+                        <canvas id="digital-signal-canvas" width="800" height="150"></canvas>
+                    </div>
+                    <div class="explanation">
+                        <p id="digital-explanation">数字比特0表示为低电平信号（通常为0V）</p>
+                    </div>
+                </div>
+
+                <!-- 载波信号显示 -->
+                <div class="signal-section">
+                    <h3>步骤2: 载波信号</h3>
+                    <canvas id="carrier-signal-canvas" width="800" height="150"></canvas>
+                    <div class="explanation">
+                        <p id="carrier-explanation">载波是一个连续的正弦波，频率为 <span id="carrier-freq-text">5</span> Hz</p>
+                        <div class="formula">
+                            $$c(t) = A_c \cos(2\pi f_c t)$$
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 调制过程显示 -->
+                <div class="signal-section">
+                    <h3>步骤3: 调制过程</h3>
+                    <div class="modulation-visualization">
+                        <div class="modulation-diagram">
+                            <div class="signal-input">
+                                <span>数字信号</span>
+                                <div class="signal-arrow">→</div>
+                            </div>
+                            <div class="modulator-box">
+                                <span id="modulator-type">ASK调制器</span>
+                                <div class="carrier-input">
+                                    <span>载波</span>
+                                    <div class="signal-arrow">↓</div>
+                                </div>
+                            </div>
+                            <div class="signal-output">
+                                <div class="signal-arrow">→</div>
+                                <span>调制信号</span>
+                            </div>
+                        </div>
+                        <canvas id="modulation-process-canvas" width="800" height="200"></canvas>
+                    </div>
+                    <div class="explanation">
+                        <p id="modulation-explanation">ASK调制：数字信号控制载波的幅度</p>
+                        <div class="formula" id="modulation-formula">
+                            $$s(t) = A(t) \cos(2\pi f_c t)$$
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 输出信号显示 -->
+                <div class="signal-section">
+                    <h3>步骤4: 调制后的输出信号</h3>
+                    <canvas id="output-signal-canvas" width="800" height="150"></canvas>
+                    <div class="explanation">
+                        <p id="output-explanation">最终的调制信号可以通过天线发射到空中</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 信号参数面板 -->
+            <div class="parameters-panel">
+                <h3>信号参数</h3>
+                <div class="parameter-grid">
+                    <div class="parameter-item">
+                        <label>比特值：</label>
+                        <span id="param-bit-value">0</span>
+                    </div>
+                    <div class="parameter-item">
+                        <label>载波频率：</label>
+                        <span id="param-carrier-freq">5 Hz</span>
+                    </div>
+                    <div class="parameter-item">
+                        <label>调制类型：</label>
+                        <span id="param-modulation">ASK</span>
+                    </div>
+                    <div class="parameter-item">
+                        <label>比特周期：</label>
+                        <span id="param-bit-period">1.0 s</span>
+                    </div>
+                    <div class="parameter-item">
+                        <label>载波振幅：</label>
+                        <span id="param-amplitude">1.0 V</span>
+                    </div>
+                    <div class="parameter-item">
+                        <label>调制指数：</label>
+                        <span id="param-mod-index">100%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 文本传输演示标签页 -->
+        <div class="tab-content" id="text-demo">
+            <div class="section-header">
+                <h2>文本传输演示</h2>
+                <p>观察文本如何转换为二进制数据并通过调制传输</p>
+            </div>
+
+            <div class="text-transmission-demo">
+                <div class="input-section">
+                    <label for="input-text">输入文本：</label>
+                    <input type="text" id="input-text" value="Hi" maxlength="10" class="form-control">
+                    <button id="transmit-text-btn" class="btn btn-primary">开始传输</button>
+                </div>
+
+                <div class="conversion-steps">
+                    <div class="step">
+                        <h4>1. 文本转ASCII</h4>
+                        <div id="ascii-display" class="code-display"></div>
+                    </div>
+                    <div class="step">
+                        <h4>2. ASCII转二进制</h4>
+                        <div id="binary-display" class="code-display"></div>
+                    </div>
+                    <div class="step">
+                        <h4>3. 二进制调制</h4>
+                        <canvas id="text-modulation-canvas" width="800" height="200"></canvas>
+                    </div>
+                </div>
+
+                <div class="transmission-controls">
+                    <div class="control-group">
+                        <label for="text-modulation">调制方式：</label>
+                        <select id="text-modulation" class="form-control">
+                            <option value="ASK">ASK</option>
+                            <option value="FSK">FSK</option>
+                            <option value="PSK">PSK</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="baud-rate">波特率 (bps)：</label>
+                        <select id="baud-rate" class="form-control">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="4">4</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 调制对比标签页 -->
+        <div class="tab-content" id="comparison">
+            <div class="section-header">
+                <h2>调制方式对比</h2>
+                <p>比较ASK、FSK、PSK三种数字调制方式的特点</p>
+            </div>
+
+            <div class="comparison-container">
+                <div class="bit-selector">
+                    <button class="bit-btn active" data-bit="0">比较比特 0</button>
+                    <button class="bit-btn" data-bit="1">比较比特 1</button>
+                </div>
+
+                <div class="modulation-comparison">
+                    <div class="modulation-column">
+                        <h4>ASK (幅移键控)</h4>
+                        <canvas id="ask-comparison-canvas" width="250" height="150"></canvas>
+                        <div class="modulation-info">
+                            <p><strong>原理：</strong>改变载波幅度</p>
+                            <p><strong>优点：</strong>实现简单</p>
+                            <p><strong>缺点：</strong>抗噪声性差</p>
+                        </div>
+                    </div>
+
+                    <div class="modulation-column">
+                        <h4>FSK (频移键控)</h4>
+                        <canvas id="fsk-comparison-canvas" width="250" height="150"></canvas>
+                        <div class="modulation-info">
+                            <p><strong>原理：</strong>改变载波频率</p>
+                            <p><strong>优点：</strong>抗噪声性好</p>
+                            <p><strong>缺点：</strong>占用带宽大</p>
+                        </div>
+                    </div>
+
+                    <div class="modulation-column">
+                        <h4>PSK (相移键控)</h4>
+                        <canvas id="psk-comparison-canvas" width="250" height="150"></canvas>
+                        <div class="modulation-info">
+                            <p><strong>原理：</strong>改变载波相位</p>
+                            <p><strong>优点：</strong>频谱效率高</p>
+                            <p><strong>缺点：</strong>相位同步要求高</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comparison-table">
+                    <table class="feature-table">
+                        <thead>
+                            <tr>
+                                <th>特性</th>
+                                <th>ASK</th>
+                                <th>FSK</th>
+                                <th>PSK</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>实现复杂度</td>
+                                <td class="low">低</td>
+                                <td class="medium">中</td>
+                                <td class="high">高</td>
+                            </tr>
+                            <tr>
+                                <td>抗噪声性</td>
+                                <td class="low">差</td>
+                                <td class="high">好</td>
+                                <td class="medium">中</td>
+                            </tr>
+                            <tr>
+                                <td>频谱效率</td>
+                                <td class="medium">中</td>
+                                <td class="low">低</td>
+                                <td class="high">高</td>
+                            </tr>
+                            <tr>
+                                <td>功率效率</td>
+                                <td class="low">低</td>
+                                <td class="high">高</td>
+                                <td class="high">高</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 理论基础标签页 -->
+        <div class="tab-content" id="theory">
+            <div class="section-header">
+                <h2>数字调制理论基础</h2>
+                <p>深入理解数字调制的数学原理和物理机制</p>
+            </div>
+
+            <div class="theory-content">
+                <div class="theory-section">
+                    <h3>数字调制概述</h3>
+                    <p>数字调制是将数字基带信号转换为适合在信道中传输的模拟信号的过程。通过改变载波的幅度、频率或相位来携带数字信息。</p>
+                    
+                    <div class="formula-box">
+                        <h4>通用调制信号表达式：</h4>
+                        <div class="formula">
+                            $$s(t) = A(t) \cos[2\pi f_c t + \phi(t)]$$
+                        </div>
+                        <p>其中：A(t)为幅度函数，f_c为载波频率，φ(t)为相位函数</p>
+                    </div>
+                </div>
+
+                <div class="theory-section">
+                    <h3>ASK (Amplitude Shift Keying)</h3>
+                    <p>幅移键控通过改变载波的幅度来传输数字信息。</p>
+                    
+                    <div class="formula-box">
+                        <div class="formula">
+                            $$s_{ASK}(t) = \begin{cases}
+                            A \cos(2\pi f_c t) & \text{比特为1} \\
+                            0 & \text{比特为0}
+                            \end{cases}$$
+                        </div>
+                    </div>
+                    
+                    <div class="characteristics">
+                        <h4>特点：</h4>
+                        <ul>
+                            <li>实现简单，成本低</li>
+                            <li>容易受噪声影响</li>
+                            <li>适用于有线传输</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="theory-section">
+                    <h3>FSK (Frequency Shift Keying)</h3>
+                    <p>频移键控通过改变载波的频率来传输数字信息。</p>
+                    
+                    <div class="formula-box">
+                        <div class="formula">
+                            $$s_{FSK}(t) = \begin{cases}
+                            A \cos(2\pi f_1 t) & \text{比特为1} \\
+                            A \cos(2\pi f_0 t) & \text{比特为0}
+                            \end{cases}$$
+                        </div>
+                    </div>
+                    
+                    <div class="characteristics">
+                        <h4>特点：</h4>
+                        <ul>
+                            <li>抗噪声性能好</li>
+                            <li>占用带宽较大</li>
+                            <li>适用于无线传输</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="theory-section">
+                    <h3>PSK (Phase Shift Keying)</h3>
+                    <p>相移键控通过改变载波的相位来传输数字信息。</p>
+                    
+                    <div class="formula-box">
+                        <div class="formula">
+                            $$s_{PSK}(t) = \begin{cases}
+                            A \cos(2\pi f_c t) & \text{比特为0} \\
+                            A \cos(2\pi f_c t + \pi) & \text{比特为1}
+                            \end{cases}$$
+                        </div>
+                    </div>
+                    
+                    <div class="characteristics">
+                        <h4>特点：</h4>
+                        <ul>
+                            <li>频谱效率高</li>
+                            <li>需要相位同步</li>
+                            <li>广泛应用于卫星通信</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="theory-section">
+                    <h3>调制性能比较</h3>
+                    <div class="performance-chart">
+                        <canvas id="performance-chart" width="600" height="300"></canvas>
+                    </div>
+                    
+                    <div class="performance-analysis">
+                        <h4>误码率与信噪比关系：</h4>
+                        <p>在相同的信噪比条件下，PSK的误码率最低，FSK次之，ASK最高。但ASK的实现最简单，PSK最复杂。</p>
+                    </div>
+                </div>
+
+                <div class="theory-section">
+                    <h3>数字通信系统框图</h3>
+                    <div class="system-diagram">
+                        <div class="diagram-flow">
+                            <div class="block">信源</div>
+                            <div class="arrow">→</div>
+                            <div class="block">信源编码</div>
+                            <div class="arrow">→</div>
+                            <div class="block">信道编码</div>
+                            <div class="arrow">→</div>
+                            <div class="block">数字调制</div>
+                            <div class="arrow">→</div>
+                            <div class="block">信道</div>
+                            <div class="arrow">→</div>
+                            <div class="block">接收</div>
+                        </div>
+                        <div class="diagram-labels">
+                            <span>数据源</span>
+                            <span>压缩</span>
+                            <span>纠错</span>
+                            <span>调制</span>
+                            <span>传输</span>
+                            <span>解调</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 引入数字调制专用JS -->
+<script src="{{ url_for('static', filename='js/digital-modulation.js') }}"></script>
+
+<!-- 数学公式渲染 -->
+<script>
+    // 确保MathJax正确渲染公式
+    if (typeof MathJax !== 'undefined') {
+        MathJax.typesetPromise();
+    }
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 初始化数字调制演示
+    if (typeof DigitalModulationDemo !== 'undefined') {
+        window.digitalDemo = new DigitalModulationDemo();
+        window.digitalDemo.init();
+    }
+    
+    // 标签页切换功能
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const targetTab = this.getAttribute('data-tab');
+            
+            // 移除所有活动状态
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // 添加活动状态
+            this.classList.add('active');
+            document.getElementById(targetTab).classList.add('active');
+            
+            // 如果切换到对比标签页，初始化对比图表
+            if (targetTab === 'comparison') {
+                initComparisonCharts();
+            }
+            
+            // 如果切换到理论标签页，初始化性能图表
+            if (targetTab === 'theory') {
+                initPerformanceChart();
+            }
+        });
+    });
+    
+    // 单比特演示控制
+    initSingleBitDemo();
+    
+    // 文本传输演示
+    initTextDemo();
+    
+    // 调制对比演示
+    initComparisonDemo();
+});
+
+function initSingleBitDemo() {
+    const bitSelect = document.getElementById('bit-select');
+    const modulationType = document.getElementById('modulation-type');
+    const carrierFreq = document.getElementById('carrier-freq');
+    const bitDuration = document.getElementById('bit-duration');
+    const playBtn = document.getElementById('play-btn');
+    const pauseBtn = document.getElementById('pause-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const stepBtn = document.getElementById('step-btn');
+    
+    let animationId = null;
+    let isPlaying = false;
+    let currentStep = 0;
+    
+    // 更新显示值
+    carrierFreq.addEventListener('input', function() {
+        document.getElementById('carrier-freq-value').textContent = this.value;
+        document.getElementById('carrier-freq-text').textContent = this.value;
+        document.getElementById('param-carrier-freq').textContent = this.value + ' Hz';
+        updateVisualization();
+    });
+    
+    bitDuration.addEventListener('input', function() {
+        document.getElementById('bit-duration-value').textContent = parseFloat(this.value).toFixed(1);
+        document.getElementById('param-bit-period').textContent = parseFloat(this.value).toFixed(1) + ' s';
+        updateVisualization();
+    });
+    
+    bitSelect.addEventListener('change', function() {
+        const bit = this.value;
+        document.getElementById('current-bit').textContent = bit;
+        document.getElementById('bit-description').textContent = bit === '0' ? '逻辑低电平' : '逻辑高电平';
+        document.getElementById('digital-explanation').textContent = 
+            bit === '0' ? '数字比特0表示为低电平信号（通常为0V）' : '数字比特1表示为高电平信号（通常为3.3V或5V）';
+        document.getElementById('param-bit-value').textContent = bit;
+        updateVisualization();
+    });
+    
+    modulationType.addEventListener('change', function() {
+        const type = this.value;
+        document.getElementById('modulator-type').textContent = type + '调制器';
+        document.getElementById('param-modulation').textContent = type;
+        updateModulationExplanation(type);
+        updateVisualization();
+    });
+    
+    playBtn.addEventListener('click', function() {
+        if (!isPlaying) {
+            startAnimation();
+        }
+    });
+    
+    pauseBtn.addEventListener('click', function() {
+        if (isPlaying) {
+            pauseAnimation();
+        }
+    });
+    
+    resetBtn.addEventListener('click', function() {
+        resetAnimation();
+    });
+    
+    stepBtn.addEventListener('click', function() {
+        stepForward();
+    });
+    
+    function updateModulationExplanation(type) {
+        const explanations = {
+            'ASK': 'ASK调制：数字信号控制载波的幅度',
+            'FSK': 'FSK调制：数字信号控制载波的频率',
+            'PSK': 'PSK调制：数字信号控制载波的相位'
+        };
+        
+        const formulas = {
+            'ASK': '$$s(t) = A(t) \\cos(2\\pi f_c t)$$',
+            'FSK': '$$s(t) = A \\cos(2\\pi f(t) t)$$',
+            'PSK': '$$s(t) = A \\cos(2\\pi f_c t + \\phi(t))$$'
+        };
+        
+        document.getElementById('modulation-explanation').textContent = explanations[type];
+        document.getElementById('modulation-formula').innerHTML = formulas[type];
+        
+        // 重新渲染数学公式
+        if (typeof MathJax !== 'undefined') {
+            MathJax.typesetPromise([document.getElementById('modulation-formula')]);
+        }
+    }
+    
+    function updateVisualization() {
+        drawDigitalSignal();
+        drawCarrierSignal();
+        drawModulationProcess();
+        drawOutputSignal();
+    }
+    
+    function drawDigitalSignal() {
+        const canvas = document.getElementById('digital-signal-canvas');
+        const ctx = canvas.getContext('2d');
+        const bit = document.getElementById('bit-select').value;
+        const duration = parseFloat(document.getElementById('bit-duration').value);
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = '#2196F3';
+        ctx.lineWidth = 3;
+        
+        const width = canvas.width - 80;
+        const height = canvas.height - 60;
+        const startX = 40;
+        const startY = 30;
+        
+        // 绘制坐标轴
+        ctx.strokeStyle = '#666';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(startX, startY + height);
+        ctx.lineTo(startX + width, startY + height);
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(startX, startY + height);
+        ctx.stroke();
+        
+        // 绘制数字信号
+        ctx.strokeStyle = '#2196F3';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        
+        const bitLevel = bit === '1' ? startY + height * 0.2 : startY + height * 0.8;
+        
+        ctx.moveTo(startX, bitLevel);
+        ctx.lineTo(startX + width, bitLevel);
+        ctx.stroke();
+        
+        // 添加标签
+        ctx.fillStyle = '#333';
+        ctx.font = '12px Arial';
+        ctx.fillText('电压', 10, startY + height/2);
+        ctx.fillText('时间', startX + width/2, startY + height + 20);
+        ctx.fillText(bit === '1' ? '高电平' : '低电平', startX + width + 10, bitLevel);
+    }
+    
+    function drawCarrierSignal() {
+        const canvas = document.getElementById('carrier-signal-canvas');
+        const ctx = canvas.getContext('2d');
+        const freq = parseFloat(document.getElementById('carrier-freq').value);
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        const width = canvas.width - 80;
+        const height = canvas.height - 60;
+        const startX = 40;
+        const startY = 30;
+        
+        // 绘制坐标轴
+        ctx.strokeStyle = '#666';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(startX, startY + height);
+        ctx.lineTo(startX + width, startY + height);
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(startX, startY + height);
+        ctx.stroke();
+        
+        // 绘制载波
+        ctx.strokeStyle = '#FF9800';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        
+        for (let x = 0; x <= width; x += 2) {
+            const t = x / width * 2; // 2秒时间窗口
+            const y = startY + height/2 + height/3 * Math.sin(2 * Math.PI * freq * t);
+            if (x === 0) {
+                ctx.moveTo(startX + x, y);
+            } else {
+                ctx.lineTo(startX + x, y);
+            }
+        }
+        ctx.stroke();
+        
+        // 添加标签
+        ctx.fillStyle = '#333';
+        ctx.font = '12px Arial';
+        ctx.fillText('幅度', 10, startY + height/2);
+        ctx.fillText('时间', startX + width/2, startY + height + 20);
+    }
+    
+    function drawModulationProcess() {
+        const canvas = document.getElementById('modulation-process-canvas');
+        const ctx = canvas.getContext('2d');
+        const bit = document.getElementById('bit-select').value;
+        const modulationType = document.getElementById('modulation-type').value;
+        const freq = parseFloat(document.getElementById('carrier-freq').value);
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        const width = canvas.width - 80;
+        const height = canvas.height - 80;
+        const startX = 40;
+        const startY = 40;
+        
+        // 绘制数字信号（上半部分）
+        ctx.strokeStyle = '#2196F3';
+        ctx.lineWidth = 2;
+        const digitalY = startY + height * 0.2;
+        const bitLevel = bit === '1' ? digitalY - 20 : digitalY + 20;
+        
+        ctx.beginPath();
+        ctx.moveTo(startX, bitLevel);
+        ctx.lineTo(startX + width, bitLevel);
+        ctx.stroke();
+        
+        // 绘制调制后的信号（下半部分）
+        ctx.strokeStyle = '#E91E63';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        
+        const modulatedY = startY + height * 0.7;
+        
+        for (let x = 0; x <= width; x += 2) {
+            const t = x / width * 2;
+            let y = modulatedY;
+            
+            switch (modulationType) {
+                case 'ASK':
+                    const amplitude = bit === '1' ? 1 : 0.1;
+                    y = modulatedY + amplitude * 30 * Math.sin(2 * Math.PI * freq * t);
+                    break;
+                case 'FSK':
+                    const frequency = bit === '1' ? freq * 1.5 : freq * 0.5;
+                    y = modulatedY + 30 * Math.sin(2 * Math.PI * frequency * t);
+                    break;
+                case 'PSK':
+                    const phase = bit === '1' ? Math.PI : 0;
+                    y = modulatedY + 30 * Math.sin(2 * Math.PI * freq * t + phase);
+                    break;
+            }
+            
+            if (x === 0) {
+                ctx.moveTo(startX + x, y);
+            } else {
+                ctx.lineTo(startX + x, y);
+            }
+        }
+        ctx.stroke();
+        
+        // 添加标签
+        ctx.fillStyle = '#333';
+        ctx.font = '12px Arial';
+        ctx.fillText('数字信号', startX, digitalY - 30);
+        ctx.fillText('调制信号', startX, modulatedY - 40);
+    }
+    
+    function drawOutputSignal() {
+        const canvas = document.getElementById('output-signal-canvas');
+        const ctx = canvas.getContext('2d');
+        const bit = document.getElementById('bit-select').value;
+        const modulationType = document.getElementById('modulation-type').value;
+        const freq = parseFloat(document.getElementById('carrier-freq').value);
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        const width = canvas.width - 80;
+        const height = canvas.height - 60;
+        const startX = 40;
+        const startY = 30;
+        
+        // 绘制坐标轴
+        ctx.strokeStyle = '#666';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(startX, startY + height);
+        ctx.lineTo(startX + width, startY + height);
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(startX, startY + height);
+        ctx.stroke();
+        
+        // 绘制输出信号
+        ctx.strokeStyle = '#4CAF50';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        
+        for (let x = 0; x <= width; x += 2) {
+            const t = x / width * 2;
+            let y = startY + height/2;
+            
+            switch (modulationType) {
+                case 'ASK':
+                    const amplitude = bit === '1' ? 1 : 0.1;
+                    y = startY + height/2 + amplitude * height/3 * Math.sin(2 * Math.PI * freq * t);
+                    break;
+                case 'FSK':
+                    const frequency = bit === '1' ? freq * 1.5 : freq * 0.5;
+                    y = startY + height/2 + height/3 * Math.sin(2 * Math.PI * frequency * t);
+                    break;
+                case 'PSK':
+                    const phase = bit === '1' ? Math.PI : 0;
+                    y = startY + height/2 + height/3 * Math.sin(2 * Math.PI * freq * t + phase);
+                    break;
+            }
+            
+            if (x === 0) {
+                ctx.moveTo(startX + x, y);
+            } else {
+                ctx.lineTo(startX + x, y);
+            }
+        }
+        ctx.stroke();
+        
+        // 添加标签
+        ctx.fillStyle = '#333';
+        ctx.font = '12px Arial';
+        ctx.fillText('幅度', 10, startY + height/2);
+        ctx.fillText('时间', startX + width/2, startY + height + 20);
+    }
+    
+    function startAnimation() {
+        isPlaying = true;
+        playBtn.disabled = true;
+        pauseBtn.disabled = false;
+        // 动画逻辑将在后续实现
+    }
+    
+    function pauseAnimation() {
+        isPlaying = false;
+        playBtn.disabled = false;
+        pauseBtn.disabled = true;
+        if (animationId) {
+            cancelAnimationFrame(animationId);
+        }
+    }
+    
+    function resetAnimation() {
+        pauseAnimation();
+        currentStep = 0;
+        document.getElementById('progress-fill').style.width = '0%';
+        updateVisualization();
+    }
+    
+    function stepForward() {
+        currentStep = (currentStep + 1) % 4;
+        document.getElementById('progress-fill').style.width = (currentStep + 1) * 25 + '%';
+    }
+    
+    // 初始化显示
+    updateVisualization();
+    updateModulationExplanation('ASK');
+}
+
+function initTextDemo() {
+    const inputText = document.getElementById('input-text');
+    const transmitBtn = document.getElementById('transmit-text-btn');
+    
+    transmitBtn.addEventListener('click', function() {
+        const text = inputText.value;
+        if (text.length === 0) return;
+        
+        // 转换为ASCII
+        const ascii = text.split('').map(char => char.charCodeAt(0));
+        document.getElementById('ascii-display').textContent = ascii.join(', ');
+        
+        // 转换为二进制
+        const binary = ascii.map(code => code.toString(2).padStart(8, '0')).join(' ');
+        document.getElementById('binary-display').textContent = binary;
+        
+        // 绘制调制信号
+        drawTextModulation(binary);
+    });
+    
+    function drawTextModulation(binaryString) {
+        const canvas = document.getElementById('text-modulation-canvas');
+        const ctx = canvas.getContext('2d');
+        const modulationType = document.getElementById('text-modulation').value;
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // 这里实现文本调制的可视化
+        // 简化实现，显示前几个比特的调制效果
+    }
+}
+
+function initComparisonDemo() {
+    const bitButtons = document.querySelectorAll('.bit-btn');
+    
+    bitButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const bit = this.getAttribute('data-bit');
+            
+            bitButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            
+            updateComparisonCharts(bit);
+        });
+    });
+    
+    // 初始显示比特0的对比
+    updateComparisonCharts('0');
+}
+
+function updateComparisonCharts(bit) {
+    drawComparisonChart('ask-comparison-canvas', 'ASK', bit);
+    drawComparisonChart('fsk-comparison-canvas', 'FSK', bit);
+    drawComparisonChart('psk-comparison-canvas', 'PSK', bit);
+}
+
+function drawComparisonChart(canvasId, modulationType, bit) {
+    const canvas = document.getElementById(canvasId);
+    const ctx = canvas.getContext('2d');
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    const width = canvas.width - 20;
+    const height = canvas.height - 20;
+    const startX = 10;
+    const startY = 10;
+    
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    
+    const freq = 5;
+    
+    for (let x = 0; x <= width; x += 2) {
+        const t = x / width;
+        let y = startY + height/2;
+        
+        switch (modulationType) {
+            case 'ASK':
+                const amplitude = bit === '1' ? 1 : 0.2;
+                y = startY + height/2 + amplitude * height/3 * Math.sin(2 * Math.PI * freq * t);
+                break;
+            case 'FSK':
+                const frequency = bit === '1' ? freq * 1.5 : freq * 0.5;
+                y = startY + height/2 + height/3 * Math.sin(2 * Math.PI * frequency * t);
+                break;
+            case 'PSK':
+                const phase = bit === '1' ? Math.PI : 0;
+                y = startY + height/2 + height/3 * Math.sin(2 * Math.PI * freq * t + phase);
+                break;
+        }
+        
+        if (x === 0) {
+            ctx.moveTo(startX + x, y);
+        } else {
+            ctx.lineTo(startX + x, y);
+        }
+    }
+    ctx.stroke();
+}
+
+function initComparisonCharts() {
+    updateComparisonCharts('0');
+}
+
+function initPerformanceChart() {
+    const canvas = document.getElementById('performance-chart');
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // 绘制性能比较图表
+    const width = canvas.width - 100;
+    const height = canvas.height - 80;
+    const startX = 60;
+    const startY = 40;
+    
+    // 绘制坐标轴
+    ctx.strokeStyle = '#666';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(startX, startY + height);
+    ctx.lineTo(startX + width, startY + height);
+    ctx.moveTo(startX, startY);
+    ctx.lineTo(startX, startY + height);
+    ctx.stroke();
+    
+    // 绘制误码率曲线（简化）
+    const colors = ['#F44336', '#FF9800', '#4CAF50'];
+    const labels = ['ASK', 'FSK', 'PSK'];
+    
+    labels.forEach((label, index) => {
+        ctx.strokeStyle = colors[index];
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        
+        for (let x = 0; x <= width; x += 5) {
+            const snr = x / width * 20; // 0-20 dB
+            let ber;
+            
+            // 简化的误码率公式
+            switch (label) {
+                case 'ASK':
+                    ber = 0.5 * Math.exp(-snr/4);
+                    break;
+                case 'FSK':
+                    ber = 0.5 * Math.exp(-snr/2);
+                    break;
+                case 'PSK':
+                    ber = 0.5 * Math.exp(-snr);
+                    break;
+            }
+            
+            const y = startY + height - (Math.log10(ber + 1e-6) + 6) / 6 * height;
+            
+            if (x === 0) {
+                ctx.moveTo(startX + x, y);
+            } else {
+                ctx.lineTo(startX + x, y);
+            }
+        }
+        ctx.stroke();
+        
+        // 添加图例
+        ctx.fillStyle = colors[index];
+        ctx.fillRect(startX + width + 10, startY + index * 20, 15, 3);
+        ctx.fillStyle = '#333';
+        ctx.font = '12px Arial';
+        ctx.fillText(label, startX + width + 30, startY + index * 20 + 10);
+    });
+    
+    // 添加轴标签
+    ctx.fillStyle = '#333';
+    ctx.font = '12px Arial';
+    ctx.fillText('信噪比 (dB)', startX + width/2, startY + height + 30);
+    ctx.save();
+    ctx.translate(20, startY + height/2);
+    ctx.rotate(-Math.PI/2);
+    ctx.fillText('误码率', 0, 0);
+    ctx.restore();
+}
+</script>
+{% endblock %}

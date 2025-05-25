@@ -1,0 +1,559 @@
+{% extends "base.html" %}
+
+{% block title %}信号调制演示 - RF Vision{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-broadcast-tower text-success me-2"></i>
+                信号调制演示
+            </h2>
+            <p class="lead">动态演示AM、FM、PM三种调制方式的物理过程和数学原理</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- 控制面板 -->
+        <div class="col-lg-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">调制参数控制</h5>
+                </div>
+                <div class="card-body">
+                    <!-- 调制类型选择 -->
+                    <div class="mb-3">
+                        <label class="form-label">调制类型</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="modType" id="amMod" value="AM" checked>
+                            <label class="btn btn-outline-primary" for="amMod">AM</label>
+                            
+                            <input type="radio" class="btn-check" name="modType" id="fmMod" value="FM">
+                            <label class="btn btn-outline-success" for="fmMod">FM</label>
+                            
+                            <input type="radio" class="btn-check" name="modType" id="pmMod" value="PM">
+                            <label class="btn btn-outline-warning" for="pmMod">PM</label>
+                        </div>
+                    </div>
+                    
+                    <!-- 载波频率 -->
+                    <div class="mb-3">
+                        <label for="carrierFreq" class="form-label">载波频率 (Hz)</label>
+                        <input type="range" class="form-range" id="carrierFreq" 
+                               min="20" max="100" value="50" step="5">
+                        <div class="form-text">当前值: <span id="carrierFreqValue">50</span> Hz</div>
+                    </div>
+                    
+                    <!-- 调制频率 -->
+                    <div class="mb-3">
+                        <label for="modFreq" class="form-label">调制频率 (Hz)</label>
+                        <input type="range" class="form-range" id="modFreq" 
+                               min="1" max="20" value="5" step="1">
+                        <div class="form-text">当前值: <span id="modFreqValue">5</span> Hz</div>
+                    </div>
+                    
+                    <!-- AM调制深度 -->
+                    <div class="mb-3" id="amControls">
+                        <label for="modDepth" class="form-label">调制深度</label>
+                        <input type="range" class="form-range" id="modDepth" 
+                               min="0.1" max="1.0" value="0.5" step="0.1">
+                        <div class="form-text">当前值: <span id="modDepthValue">0.5</span></div>
+                    </div>
+                    
+                    <!-- FM频偏 -->
+                    <div class="mb-3" id="fmControls" style="display: none;">
+                        <label for="freqDev" class="form-label">频率偏移 (Hz)</label>
+                        <input type="range" class="form-range" id="freqDev" 
+                               min="5" max="30" value="10" step="1">
+                        <div class="form-text">当前值: <span id="freqDevValue">10</span> Hz</div>
+                    </div>
+                    
+                    <!-- PM相偏 -->
+                    <div class="mb-3" id="pmControls" style="display: none;">
+                        <label for="phaseDev" class="form-label">相位偏移 (弧度)</label>
+                        <input type="range" class="form-range" id="phaseDev" 
+                               min="0.1" max="3.14" value="0.785" step="0.1">
+                        <div class="form-text">当前值: <span id="phaseDevValue">0.785</span></div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <button class="btn btn-primary w-100" onclick="generateModulation()">
+                            <i class="fas fa-play me-2"></i>生成调制信号
+                        </button>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <button class="btn btn-success w-100" onclick="startAnimation()">
+                            <i class="fas fa-film me-2"></i>动态演示
+                        </button>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <button class="btn btn-warning w-100" onclick="stopAnimation()">
+                            <i class="fas fa-stop me-2"></i>停止动画
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 调制理论 -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0">调制原理</h6>
+                </div>
+                <div class="card-body">
+                    <div class="physics-formula" id="modulationFormula">
+                        <!-- AM公式 -->
+                        <div id="amFormula">
+                            <strong>幅度调制 (AM):</strong><br>
+                            $$s_{AM}(t) = A_c[1 + m \cdot m(t)]\cos(2\pi f_c t)$$
+                            <hr>
+                            <strong>包络:</strong><br>
+                            $$E(t) = A_c[1 + m \cdot m(t)]$$
+                            <hr>
+                            • $m$: 调制深度<br>
+                            • $m(t)$: 调制信号<br>
+                            • 过调制: $m > 1$
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 图表显示区域 -->
+        <div class="col-lg-9">
+            <div class="row">
+                <!-- 调制信号对比 -->
+                <div class="col-12 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0">调制过程对比</h6>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="modulationChart" width="800" height="400"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 频谱分析 -->
+                <div class="col-12 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0">频谱分析</h6>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="spectrumChart" width="800" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 调制参数显示 -->
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="card bg-light">
+                        <div class="card-body text-center">
+                            <h6>调制类型</h6>
+                            <h4 class="text-primary" id="displayModType">AM</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-light">
+                        <div class="card-body text-center">
+                            <h6>载波频率</h6>
+                            <h4 class="text-success" id="displayCarrierFreq">50 Hz</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-light">
+                        <div class="card-body text-center">
+                            <h6>调制频率</h6>
+                            <h4 class="text-warning" id="displayModFreq">5 Hz</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-light">
+                        <div class="card-body text-center">
+                            <h6>调制参数</h6>
+                            <h4 class="text-info" id="displayModParam">0.5</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let modulationChart, spectrumChart;
+let animationId;
+let currentData = null;
+
+// 调制公式模板
+const formulaTemplates = {
+    AM: `
+        <strong>幅度调制 (AM):</strong><br>
+        $$s_{AM}(t) = A_c[1 + m \\cdot m(t)]\\cos(2\\pi f_c t)$$
+        <hr>
+        <strong>包络:</strong><br>
+        $$E(t) = A_c[1 + m \\cdot m(t)]$$
+        <hr>
+        • $m$: 调制深度<br>
+        • $m(t)$: 调制信号<br>
+        • 过调制: $m > 1$
+    `,
+    FM: `
+        <strong>频率调制 (FM):</strong><br>
+        $$s_{FM}(t) = A_c\\cos(2\\pi f_c t + \\frac{\\Delta f}{f_m}\\sin(2\\pi f_m t))$$
+        <hr>
+        <strong>瞬时频率:</strong><br>
+        $$f_i(t) = f_c + \\Delta f \\cos(2\\pi f_m t)$$
+        <hr>
+        • $\\Delta f$: 频率偏移<br>
+        • $\\beta = \\Delta f / f_m$: 调制指数<br>
+        • 窄带/宽带 FM
+    `,
+    PM: `
+        <strong>相位调制 (PM):</strong><br>
+        $$s_{PM}(t) = A_c\\cos(2\\pi f_c t + \\Delta \\phi \\cos(2\\pi f_m t))$$
+        <hr>
+        <strong>瞬时相位:</strong><br>
+        $$\\phi_i(t) = \\Delta \\phi \\cos(2\\pi f_m t)$$
+        <hr>
+        • $\\Delta \\phi$: 相位偏移<br>
+        • $\\beta = \\Delta \\phi$: 调制指数<br>
+        • PM与FM的关系
+    `
+};
+
+// 初始化图表
+function initCharts() {
+    // 调制过程图表
+    const modCtx = document.getElementById('modulationChart').getContext('2d');
+    modulationChart = new Chart(modCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [
+                {
+                    label: '载波信号',
+                    data: [],
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                    borderWidth: 1,
+                    fill: false
+                },
+                {
+                    label: '调制信号',
+                    data: [],
+                    borderColor: 'rgb(255, 206, 86)',
+                    backgroundColor: 'rgba(255, 206, 86, 0.1)',
+                    borderWidth: 2,
+                    fill: false
+                },
+                {
+                    label: '已调制信号',
+                    data: [],
+                    borderColor: 'rgb(255, 99, 132)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                    borderWidth: 2,
+                    fill: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            animation: false,
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: '时间 (s)'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: '振幅'
+                    }
+                }
+            }
+        }
+    });
+
+    // 频谱图表
+    const specCtx = document.getElementById('spectrumChart').getContext('2d');
+    spectrumChart = new Chart(specCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: '幅度谱',
+                data: [],
+                borderColor: 'rgb(255, 99, 132)',
+                backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                borderWidth: 2,
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            animation: false,
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: '频率 (Hz)'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: '幅度'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// 生成调制信号
+async function generateModulation() {
+    const modType = document.querySelector('input[name="modType"]:checked').value;
+    const carrierFreq = document.getElementById('carrierFreq').value;
+    const modFreq = document.getElementById('modFreq').value;
+    
+    let apiUrl = '';
+    let params = `carrier_freq=${carrierFreq}&mod_freq=${modFreq}`;
+    
+    switch(modType) {
+        case 'AM':
+            const modDepth = document.getElementById('modDepth').value;
+            apiUrl = `/api/generate_am?${params}&mod_depth=${modDepth}`;
+            break;
+        case 'FM':
+            const freqDev = document.getElementById('freqDev').value;
+            apiUrl = `/api/generate_fm?${params}&freq_dev=${freqDev}`;
+            break;
+        case 'PM':
+            const phaseDev = document.getElementById('phaseDev').value;
+            apiUrl = `/api/generate_pm?${params}&phase_dev=${phaseDev}`;
+            break;
+    }
+    
+    try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+        
+        currentData = data;
+        updateCharts(data, modType);
+        updateDisplays(modType);
+        
+    } catch (error) {
+        console.error('生成调制信号失败:', error);
+        alert('生成调制信号失败，请检查网络连接');
+    }
+}
+
+// 更新图表
+function updateCharts(data, modType) {
+    const modData = data[modType.toLowerCase()];
+    
+    // 更新调制过程图表
+    modulationChart.data.labels = modData.time;
+    
+    // 载波信号
+    if (modData.carrier) {
+        modulationChart.data.datasets[0].data = modData.carrier;
+    }
+    
+    // 调制信号
+    modulationChart.data.datasets[1].data = modData.modulation;
+    
+    // 已调制信号
+    const signalKey = modType === 'AM' ? 'am_signal' : 
+                     modType === 'FM' ? 'fm_signal' : 'pm_signal';
+    modulationChart.data.datasets[2].data = modData[signalKey];
+    
+    // 为AM添加包络线
+    if (modType === 'AM' && modData.envelope_upper) {
+        if (modulationChart.data.datasets.length < 5) {
+            modulationChart.data.datasets.push({
+                label: '上包络',
+                data: [],
+                borderColor: 'rgba(255, 99, 132, 0.5)',
+                borderWidth: 1,
+                fill: false,
+                pointRadius: 0
+            });
+            modulationChart.data.datasets.push({
+                label: '下包络',
+                data: [],
+                borderColor: 'rgba(255, 99, 132, 0.5)',
+                borderWidth: 1,
+                fill: false,
+                pointRadius: 0
+            });
+        }
+        modulationChart.data.datasets[3].data = modData.envelope_upper;
+        modulationChart.data.datasets[4].data = modData.envelope_lower;
+    } else {
+        // 移除包络线
+        while (modulationChart.data.datasets.length > 3) {
+            modulationChart.data.datasets.pop();
+        }
+    }
+    
+    modulationChart.update('none');
+    
+    // 更新频谱图表
+    spectrumChart.data.labels = data.spectrum.frequencies;
+    spectrumChart.data.datasets[0].data = data.spectrum.magnitude;
+    spectrumChart.update('none');
+}
+
+// 更新显示信息
+function updateDisplays(modType) {
+    const carrierFreq = document.getElementById('carrierFreq').value;
+    const modFreq = document.getElementById('modFreq').value;
+    
+    document.getElementById('displayModType').textContent = modType;
+    document.getElementById('displayCarrierFreq').textContent = carrierFreq + ' Hz';
+    document.getElementById('displayModFreq').textContent = modFreq + ' Hz';
+    
+    let paramValue = '';
+    switch(modType) {
+        case 'AM':
+            paramValue = document.getElementById('modDepth').value;
+            break;
+        case 'FM':
+            paramValue = document.getElementById('freqDev').value + ' Hz';
+            break;
+        case 'PM':
+            paramValue = parseFloat(document.getElementById('phaseDev').value).toFixed(2) + ' rad';
+            break;
+    }
+    document.getElementById('displayModParam').textContent = paramValue;
+}
+
+// 切换调制类型
+function switchModulationType() {
+    const modType = document.querySelector('input[name="modType"]:checked').value;
+    
+    // 隐藏所有控件
+    document.getElementById('amControls').style.display = 'none';
+    document.getElementById('fmControls').style.display = 'none';
+    document.getElementById('pmControls').style.display = 'none';
+    
+    // 显示对应控件
+    document.getElementById(modType.toLowerCase() + 'Controls').style.display = 'block';
+    
+    // 更新公式显示
+    document.getElementById('modulationFormula').innerHTML = formulaTemplates[modType];
+    
+    // 重新渲染数学公式
+    if (window.MathJax) {
+        MathJax.typesetPromise();
+    }
+}
+
+// 开始动画
+function startAnimation() {
+    if (!currentData) {
+        alert('请先生成调制信号');
+        return;
+    }
+    
+    const modType = document.querySelector('input[name="modType"]:checked').value;
+    const modData = currentData[modType.toLowerCase()];
+    let frame = 0;
+    const totalFrames = modData.time.length;
+    
+    function animate() {
+        if (frame >= totalFrames) {
+            frame = 0;
+        }
+        
+        // 更新图表显示当前帧
+        const currentTime = modData.time.slice(0, frame);
+        
+        modulationChart.data.labels = currentTime;
+        if (modData.carrier) {
+            modulationChart.data.datasets[0].data = modData.carrier.slice(0, frame);
+        }
+        modulationChart.data.datasets[1].data = modData.modulation.slice(0, frame);
+        
+        const signalKey = modType === 'AM' ? 'am_signal' : 
+                         modType === 'FM' ? 'fm_signal' : 'pm_signal';
+        modulationChart.data.datasets[2].data = modData[signalKey].slice(0, frame);
+        
+        modulationChart.update('none');
+        
+        frame += 3; // 控制动画速度
+        animationId = requestAnimationFrame(animate);
+    }
+    
+    animate();
+}
+
+// 停止动画
+function stopAnimation() {
+    if (animationId) {
+        cancelAnimationFrame(animationId);
+        animationId = null;
+    }
+    
+    // 恢复完整波形显示
+    if (currentData) {
+        const modType = document.querySelector('input[name="modType"]:checked').value;
+        updateCharts(currentData, modType);
+    }
+}
+
+// 事件监听器
+document.addEventListener('DOMContentLoaded', function() {
+    initCharts();
+    
+    // 调制类型切换
+    document.querySelectorAll('input[name="modType"]').forEach(radio => {
+        radio.addEventListener('change', switchModulationType);
+    });
+    
+    // 参数滑块
+    document.getElementById('carrierFreq').addEventListener('input', function() {
+        document.getElementById('carrierFreqValue').textContent = this.value;
+    });
+    
+    document.getElementById('modFreq').addEventListener('input', function() {
+        document.getElementById('modFreqValue').textContent = this.value;
+    });
+    
+    document.getElementById('modDepth').addEventListener('input', function() {
+        document.getElementById('modDepthValue').textContent = this.value;
+    });
+    
+    document.getElementById('freqDev').addEventListener('input', function() {
+        document.getElementById('freqDevValue').textContent = this.value;
+    });
+    
+    document.getElementById('phaseDev').addEventListener('input', function() {
+        document.getElementById('phaseDevValue').textContent = this.value;
+    });
+    
+    // 初始化显示
+    switchModulationType();
+    generateModulation();
+    
+    // 重新渲染数学公式
+    if (window.MathJax) {
+        MathJax.typesetPromise();
+    }
+});
+</script>
+{% endblock %}
